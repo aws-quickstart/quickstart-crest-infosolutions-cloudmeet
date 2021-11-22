@@ -1,0 +1,109 @@
+== Deployment Steps
+=== Step 1. Prepare Your AWS Account
+1. If you don’t already have an AWS account, create one at https://aws.amazon.com by following the on-screen instructions.
+2. Use the region selector in the navigation bar to choose the AWS Region where you want to deploy {partner-product-short-name} on AWS.
+3. Please request a service limit increase for the Amazon EIPs (minimum 8 EIPs are required for {partner-product-short-name})
+
+// We need to work around Step numbers here if we are going to potentially exclude the AMI subscription
+=== Sign in to your AWS account
+
+1. Sign in to your AWS account at https://aws.amazon.com with an IAM user role that has the necessary permissions. For details, see link:#_planning_the_deployment[Planning the deployment] earlier in this guide.
+2. Make sure that your AWS account is configured correctly, as discussed in the link:#_technical_requirements[Technical requirements] section.
+
+// Optional based on Marketplace listing. Not to be edited
+ifdef::marketplace_subscription[]
+=== Subscribe to the {partner-product-short-name} AMI
+
+This Quick Start requires a subscription to the AMI for {partner-product-short-name} in AWS Marketplace.
+
+. Sign in to your AWS account.
+. Open the page for the {marketplace_listing_url}[{partner-product-short-name} AMI in AWS Marketplace^], and then choose *Continue to Subscribe*.
+. Review the terms and conditions for software usage, and then choose *Accept Terms*. +
+  A confirmation page loads, and an email confirmation is sent to the account owner. For detailed subscription instructions, see the https://aws.amazon.com/marketplace/help/200799470[AWS Marketplace documentation^].
+
+. When the subscription process is complete, exit out of AWS Marketplace without further action. *Do not* provision the software from AWS Marketplace—the Quick Start deploys the AMI for you.
+endif::marketplace_subscription[]
+// \Not to be edited
+
+=== Step 2. Launch the Quick Start
+// Adapt the following warning to your Quick Start.
+NOTE: You are responsible for the cost of the AWS services used while running this
+Quick Start reference deployment. You will also be charged for the apps you deploy
+on your Amazon ECS cluster. For full details, see the pricing pages for each AWS
+service you will be using in this Quick Start. Prices are subject to change.
+
+
+// Adapt the following warning to your Quick Start.
+IMPORTANT: If you’re deploying {partner-product-short-name} into an existing VPC, make sure that your VPC has two private subnets in different Availability Zones for the workload instances and that the subnets aren’t shared. This Quick Start doesn’t support https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html[shared subnets^]. These subnets require https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html[NAT gateways^] in their route tables to allow the instances to download packages and software without exposing them to the internet. Also make sure that the domain name option in the DHCP options is configured as explained in http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html[DHCP options sets^]. You provide your VPC settings when you launch the Quick Start.
+
+Each deployment takes about 30 minutes to complete.
+
+. Sign in to your AWS account, and choose one of the following options to launch the AWS CloudFormation template. For help with choosing an option, see link:#_deployment_options[Deployment options] earlier in this guide.
+
+[cols="3,1"]
+|===
+^|http://qs_launch_permalink[Deploy {partner-product-short-name} into a new VPC on AWS^]
+^|http://qs_template_permalink[View template^]
+
+^|http://qs_launch_permalink[Deploy {partner-product-short-name} into an existing VPC on AWS^]
+^|http://qs_template_permalink[View template^]
+|===
+
+[start=2]
+. Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This Region is where the network infrastructure for {partner-product-short-name} is built. The template is launched in the {default_deployment_region} Region by default. For other choices, see link:#_supported_regions[Supported Regions] earlier in this guide.
+
+[start=3]
+. On the *Create stack* page, keep the default setting for the template URL, upload the master template yaml file and then choose *Next*.
+. On the *Specify stack details* page, 
+1. Select template ready and upload the master template yaml file.
+2. Enter the stack name.
+3. Choose the deployment type (i.e. Eval (default) or Prod)
+4. Provide VPC CIDR (for New VPC - default 10.0.0.0/16) or VPC ID (ID of your existing VPC)
+5. Select the number of availability zones from the list of availability zones (i.e. default is set to 2)
+6. Select the names of availability zones from the list of availability zones
+7. Provide Public subnet 1 CIDR for (for New VPC - default 10.0.32.0/20) or Public subnet 1 ID (ID of your existing VPC)
+8. Provide Public subnet 2 CIDR for (for New VPC - default 10.0.16.0/20) or Public subnet 2 ID (ID of your existing VPC)
+9. Provide Public subnet 3 CIDR for (for New VPC - default 10.0.0.0/20) or Public subnet 3 ID (ID of your existing VPC)
+10. Provide Private subnet 1A CIDR for (for New VPC - default 10.0.128.0/19) or Private subnet 1A ID (ID of your existing VPC)
+11. Provide Private subnet 2A CIDR for (for New VPC - default 10.0.64.0/19) or Private subnet 2A ID (ID of your existing VPC)
+12. Provide Private subnet 3A CIDR for (for New VPC - default 10.0.0.0/19) or Private subnet 3A ID (ID of your existing VPC)
+13. Please provide password for the use of multiple internal services (Min 8 Alphanumeric Characters)
+14. In case, deployment type is "Evalaution", please provide "company name" (max limit - 8 chars) as the subdomain name (i.e. companyname.domainname) to access the product url.
+15. In case, deployment type is "Production", plesae provide the following mandatory parameters:
+**** Two domain names for chat and call (i.e. meet.domain.com and call.domain.com) function to access the product url
+**** SSL Certificate ID required for SSL enabled Network Load Balancer
+16. Provide S3 bucket name for the Quick Start (default - aws-quickstart)
+17. Provide S3 key prefix for the Quick Start (default - quickstart-crest-infosolutions-cloudmeet/)
+18. Provide the S3 bucket Region where the Quick Start S3 bucket is hosted (default - ap-southeast-1)
+19. Review the rest parameters for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. For details on each parameter, see the link:#_parameter_reference[Parameter reference] section of this guide. When you finish reviewing and customizing the parameters, click *Next*.
+On Configure stack options page, please click *Next* button.
+20. On final page, please select the AWS CloudFormation Capabilities check boxes and click *Create Stack*.
+
+=== Step 3. Test the Deployment
+
+When the AWS Cloudformation template successfully creates the stack, the Fargate instance will be running in your AWS cluster, and the Cloudmeet application will be installed on the Amazon ECS host instances.
+
+==== Evaluation
+To verify that the Cloudmeet application is running and accessible, please follow the below steps:
+1. In the AWS CloudFormation console, choose the Outputs tab from *Service Stack*, please capture the *VALUE* of corrosponding *KEY* attributes 
+
+** KEY Attribute1 - RCHATEVALNLBURL
+** KEY Attribute2 - JVBEVALNLBURL
+** KEY Attribute3 - CloudmeetDomain
+** KEY Attribute4 - CloudcallDomain
+
+Please share the *VALUE* of above *KEY* attributes to support@progentys.com (Radaji to deceide)
+
+Progentys support team will map the shared *values* of *key* attributes to provided domain name.
+Once Progentys support team confirms the completion of mapping activity, customer can access the URL (https://cloudmeetdomain/cloudmeet) in a web browser.
+The default username and password for the application are "jsnow" & "jsnow" respectively. (Radaji to deceide)
+
+==== Production
+To verify that the Cloudmeet application is running and accessible, please follow the below steps:
+1. In the AWS CloudFormation console, choose the Outputs tab from *Service Stack*, please capture the *VALUE* of corrosponding *KEY* attributes 
+
+** KEY Attribute - CloudmeetDomain
+
+Customer can access the URL (https://cloudmeetdomain/cloudmeet) in a web browser.
+The default username and password for the application are "jsnow" & "jsnow" respectively. (Radaji to deceide)
+

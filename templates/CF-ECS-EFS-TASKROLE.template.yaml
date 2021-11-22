@@ -1,0 +1,265 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  AWS CloudFormation template to create a new ECS Cluster, EFS Access Points, and task roles (qp-1rds3mip3)
+Resources:
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Join 
+        - '-'
+        - - dev-cloudmeet
+          - !Ref 'AWS::AccountId'
+          - cluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+
+  ElasticFileSystemResource:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+      FileSystemTags:
+      - Key: Name
+        Value: !Join
+          - '-'
+          - - dev-cloudmeet
+            - !Ref 'AWS::AccountId'
+            - efs
+  EfsAccessPoint1:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Mariadb-Volume        
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/db"
+  EfsAccessPoint2:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: MongoDB-Volume
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/data/db"
+  EfsAccessPoint3:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: RocketChat-Volume
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/upload"
+  EfsAccessPoint4:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Jitsi-Web-Config
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/jitsi/config"
+  EfsAccessPoint5:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Jitsi-Prosody-Volume
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/jitsi/prosody/config"
+  EfsAccessPoint6:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Jitsi-Jicofo-Volume
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/jitsi/jicofo"
+  EfsAccessPoint7:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Jitsi-Jvb-Volume
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/jitsi/jvb"
+  EfsAccessPoint8:
+    Type: 'AWS::EFS::AccessPoint'
+    Properties:
+      AccessPointTags:
+        - Key: Name
+          Value: Jitsi-Jvb-Volume2
+      FileSystemId: !Ref ElasticFileSystemResource
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "0"
+          OwnerUid: "0"
+          Permissions: "0755"
+        Path: "/jitsi/jvb2"
+
+  TaskScaleRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: EfsApR
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 'elasticfilesystem:ClientMount'
+                Resource: !GetAtt ElasticFileSystemResource.Arn
+                Condition:
+                  StringEquals:
+                    'elasticfilesystem:AccessPointArn': 
+                      - !GetAtt EfsAccessPoint1.Arn
+                      - !GetAtt EfsAccessPoint2.Arn
+                      - !GetAtt EfsAccessPoint3.Arn
+                      - !GetAtt EfsAccessPoint4.Arn
+                      - !GetAtt EfsAccessPoint5.Arn
+                      - !GetAtt EfsAccessPoint6.Arn
+                      - !GetAtt EfsAccessPoint7.Arn
+                      - !GetAtt EfsAccessPoint8.Arn
+              - Sid: VisualEditor0
+                Effect: Allow
+                Action:
+                  - 'ec2:DescribeNetworkInterfaces'
+                  - 'ecs:DescribeTasks'
+                Resource: '*'
+
+  TaskExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - !Ref S3AccessTaskPolicy
+  S3AccessTaskPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              - 'arn:aws:s3:::cloudmeet-cluster-stack/*'
+          - Effect: Allow
+            Action:
+              - s3:GetBucketLocation
+            Resource:
+              - 'arn:aws:s3:::cloudmeet-cluster-stack'
+Outputs:
+  ECSCluster:
+    Description: The ECS Cluster 
+    Value: !Ref 'ECSCluster'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSCluster' ] ]
+  ElasticFileSystemResource:
+    Description: The ARN of the EFS Resources
+    Value: !Ref 'ElasticFileSystemResource'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ElasticFileSystemResource' ] ]
+  EfsAccessPoint1:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint1'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint1' ] ]
+  EfsAccessPoint2:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint2'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint2' ] ]
+  EfsAccessPoint3:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint3'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint3' ] ]
+  EfsAccessPoint4:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint4'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint4' ] ]
+  EfsAccessPoint5:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint5'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint5' ] ]
+  EfsAccessPoint6:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint6'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint6' ] ]      
+  EfsAccessPoint7:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint7'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint7' ] ]      
+  EfsAccessPoint8:
+    Description: The ARN of the EFS Access Point 
+    Value: !Ref 'EfsAccessPoint8'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint8' ] ]      
+  TaskScaleRole:
+    Description: The ARN of the ECS Task Scale role
+    Value: !GetAtt 'TaskScaleRole.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'TaskScaleRole' ] ]
+  TaskExecutionRole:
+    Description: The ARN of the ECS role
+    Value: !GetAtt 'TaskExecutionRole.Arn'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'TaskExecutionRole' ] ]
