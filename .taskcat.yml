@@ -23,10 +23,13 @@ project:
   - us-west-2
   s3_bucket: ''
 tests:
-  cloudmeet-us-east-1-3-AZ:
+  cloudmeet-ap-southeast-1-2-AZ:
     parameters:
-      AvailabilityZones: $[taskcat_genaz_3]
-      CompanyName: 'taskcatq'
+      AvailabilityZones: $[taskcat_genaz_2]
+      CompanyName: $[taskcat_genpass_12A]
+      Password: P!$[taskcat_genpass_12A]
+      CloudmeetDomain: Cloudmeet.example.com
+      CloudcallDomain: Cloudmeet.example.com
     regions:
-      - us-east-1
-    template: templates/cloudmeet-entrypoint-new-vpc.template.yaml
+      - ap-southeast-1
+    template: templates/cf-entrypoint-new-vpc.template.yaml
