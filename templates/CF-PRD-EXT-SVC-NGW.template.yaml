@@ -1,31 +1,31 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation Network Resources template to create the required container services on ECS for existing VPC implementation (production version) (qp-1rds3mip3)
+  AWS CloudFormation Network Resources template to create the required container services on ECS for existing VPC implementation (production version) (qs-1shsu3b73)
 Parameters:
   ECSCluster:
     Description: ECS Cluster Name
     Type: String
-    Default: ''  
+    Default: ''
   PublicSubnet1:
     Description: VPC Public Subnet 1
     Type: String
-    Default: ''      
+    Default: ''
   PublicSubnet2:
     Description: VPC Public Subnet 2
     Type: String
-    Default: ''      
+    Default: ''
   PrivateSubnet1A:
     Description: VPC Private Subnet 1A
     Type: String
-    Default: ''      
+    Default: ''
   PrivateSubnet2A:
     Description: VPC Private Subnet 2A
     Type: String
-    Default: ''     
+    Default: ''
   PrivateSubnet3A:
     Description: VPC Private Subnet 3A
     Type: String
-    Default: ''     
+    Default: ''
   VPCID:
     Description: VPC ID
     Type: String
@@ -33,7 +33,7 @@ Parameters:
   ContainerSecurityGroup:
     Description: Container Security Group Name
     Type: String
-    Default: ''      
+    Default: ''
   JVBDiscoveryService:
     Description: JVB DiscoveryService Arn
     Type: String
@@ -49,35 +49,35 @@ Parameters:
   RCHATPRODTLSTG:
     Description: Rchat TLS Target Group ID
     Type: String
-    Default: ''  
+    Default: ''
   ECSTDJVB:
     Description: JVB Task Definition
     Type: String
-    Default: ''  
+    Default: ''
   ECSTDJITSI:
     Description: JITSI Task Definition
     Type: String
-    Default: ''  
+    Default: ''
   ECSTDRCHAT:
     Description: RCHAT Task Definition
     Type: String
-    Default: ''  
+    Default: ''
 Resources:
   JVBScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
       MaxCapacity: 5
-      MinCapacity: 1  
-      RoleARN: 
+      MinCapacity: 1
+      RoleARN:
         Fn::Sub: 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
       ServiceNamespace: ecs
       ScalableDimension: 'ecs:service:DesiredCount'
-      ResourceId: !Join 
+      ResourceId: !Join
         - /
         - - service
           - !Ref ECSCluster
           - !GetAtt JVB2Service.Name
-  
+
   JVBServiceScalingPolicyCPU:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -91,10 +91,10 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: ECSServiceAverageCPUUtilization
 
-  JVBService: 
+  JVBService:
     Type: AWS::ECS::Service
-    Properties: 
-      Cluster: 
+    Properties:
+      Cluster:
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -104,28 +104,28 @@ Resources:
       HealthCheckGracePeriodSeconds: 600
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets: 
+          Subnets:
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
           SecurityGroups:
-            - !Ref ContainerSecurityGroup    
+            - !Ref ContainerSecurityGroup
       LoadBalancers:
         - ContainerName: jitsi-web
           ContainerPort: 80
           TargetGroupArn: !Ref JVBPRODTLSTG
         - ContainerName: jitsi-jvb
           ContainerPort: 10000
-          TargetGroupArn: !Ref JVBPRODUDPTG          
-      TaskDefinition: 
+          TargetGroupArn: !Ref JVBPRODUDPTG
+      TaskDefinition:
         Ref: "ECSTDJITSI"
       ServiceRegistries:
         - RegistryArn: !Ref JVBDiscoveryService
       PlatformVersion: "1.4.0"
 
-  JVB2Service: 
+  JVB2Service:
     Type: AWS::ECS::Service
-    Properties: 
-      Cluster: 
+    Properties:
+      Cluster:
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -134,19 +134,19 @@ Resources:
         MinimumHealthyPercent: 100
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets: 
+          Subnets:
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
           SecurityGroups:
             - !Ref ContainerSecurityGroup
-      TaskDefinition: 
-        Ref: "ECSTDJVB"        
+      TaskDefinition:
+        Ref: "ECSTDJVB"
       PlatformVersion: "1.4.0"
 
-  RCHATService: 
+  RCHATService:
     Type: AWS::ECS::Service
-    Properties: 
-      Cluster: 
+    Properties:
+      Cluster:
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -156,7 +156,7 @@ Resources:
       HealthCheckGracePeriodSeconds: 600
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets: 
+          Subnets:
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
           SecurityGroups:
@@ -165,10 +165,10 @@ Resources:
         - ContainerName: cm-web
           ContainerPort: 80
           TargetGroupArn: !Ref RCHATPRODTLSTG
-      TaskDefinition: 
+      TaskDefinition:
         Ref: "ECSTDRCHAT"
-      PlatformVersion: "1.4.0"    
-     
+      PlatformVersion: "1.4.0"
+
 Outputs:
   UsedByECSCreateCluster:
     Description: Flag used by Elastic Container Service Create Cluster Wizard

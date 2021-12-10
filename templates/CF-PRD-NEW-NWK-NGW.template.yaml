@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required network resources for new VPC implementation (production version) (qp-1rds3mip3)
+  AWS CloudFormation template to create the required network resources for new VPC implementation (production version) (qs-1shsu3b7o)
 Parameters:
   PublicSubnet1:
     Description: VPC Public Subnet 1
@@ -34,7 +34,7 @@ Parameters:
     Description: VPC CIDR
     Default: ''
     Type: String
-  SecurityIngressCidrIp:    
+  SecurityIngressCidrIp:
     Description: VPC SecurityIngressCidrIp
     Type: String
     Default: 0.0.0.0/0
@@ -45,14 +45,14 @@ Parameters:
   CertificateID:
     Description: SSL CertificateID Required for SSL enabled NLB
     Type: String
-    Default: '' 
+    Default: ''
 
 Resources:
   ContainerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Allowed Ports
-      VpcId: !Ref VPCID 
+      VpcId: !Ref VPCID
       SecurityGroupIngress:
         - IpProtocol: ALL
           CidrIp: !Ref VPCCIDR
@@ -90,7 +90,7 @@ Resources:
             - '-'
             - - 'Prod'
               - 'cloudmeet'
-              - 'ctr-sg'          
+              - 'ctr-sg'
   MountTargetAz1a:
     Type: 'AWS::EFS::MountTarget'
     Properties:
@@ -115,28 +115,28 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Prod-Rchat-NLB-EIP-1 
+          Value: Prod-Rchat-NLB-EIP-1
   RCHATPRODEIP2:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Prod-Rchat-NLB-EIP-2 
+          Value: Prod-Rchat-NLB-EIP-2
   JVBPRODEIP1:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Prod-JVB-NLB-EIP-1 
+          Value: Prod-JVB-NLB-EIP-1
   JVBPRODEIP2:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Prod-JVB-NLB-EIP-2 
+          Value: Prod-JVB-NLB-EIP-2
   RCHATPRODNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -151,7 +151,7 @@ Resources:
       Tags:
         - Key: Name
           Value: Prod-Rchat-NLB
- 
+
   RchatPRODNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -163,7 +163,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref RCHATPRODTLSTG
-  
+
   RCHATPRODTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -173,7 +173,7 @@ Resources:
       HealthCheckPort: '80'
       HealthCheckIntervalSeconds: 30
       HealthyThresholdCount: 10
-      UnhealthyThresholdCount: 10      
+      UnhealthyThresholdCount: 10
       Port: 80
       Protocol: TCP
       TargetGroupAttributes:
@@ -198,7 +198,7 @@ Resources:
       Tags:
         - Key: Name
           Value: Prod-JVB-NLB
- 
+
   JVBPRODNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -210,7 +210,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref JVBPRODTLSTG
-  
+
   JVBPRODTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -230,7 +230,7 @@ Resources:
         - Key: Name
           Value: Prod-JVB-TLS-TG
       TargetType: ip
-      
+
   JVBPRODUDPListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -283,27 +283,27 @@ Resources:
 
 Outputs:
   ContainerSecurityGroup:
-    Description: Container Security Group Name 
+    Description: Container Security Group Name
     Value: !Ref 'ContainerSecurityGroup'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroup' ] ]
   RCHATPRODTLSTG:
-    Description: Rchat TLS Target Group Name 
+    Description: Rchat TLS Target Group Name
     Value: !Ref 'RCHATPRODTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATPRODTLSTG' ] ]
   JVBPRODTLSTG:
-    Description: Jitsi TLS Target Group Name 
+    Description: Jitsi TLS Target Group Name
     Value: !Ref 'JVBPRODTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODTLSTG' ] ]
   JVBPRODUDPTG:
-    Description: Jitsi UDP Target Group Name 
+    Description: Jitsi UDP Target Group Name
     Value: !Ref 'JVBPRODUDPTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODUDPTG' ] ]
   JVBDiscoveryService:
-    Description: Jitsi Local Discovery Service 
+    Description: Jitsi Local Discovery Service
     Value: !GetAtt 'JVBDiscoveryService.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBDiscoveryService' ] ]

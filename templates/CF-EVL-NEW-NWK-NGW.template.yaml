@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required network resources for new VPC implementation (evaluation version) (qp-1rds3mip3)
+  AWS CloudFormation template to create the required network resources for new VPC implementation (evaluation version) (qs-1shsu3b5r)
 Parameters:
   PublicSubnet1:
     Description: VPC Public Subnet 1
@@ -34,7 +34,7 @@ Parameters:
     Description: VPC CIDR
     Default: ''
     Type: String
-  SecurityIngressCidrIp:    
+  SecurityIngressCidrIp:
     Description: VPC SecurityIngressCidrIp
     Type: String
     Default: 0.0.0.0/0
@@ -48,7 +48,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Allowed Ports
-      VpcId: !Ref VPCID 
+      VpcId: !Ref VPCID
       SecurityGroupIngress:
         - IpProtocol: ALL
           CidrIp: !Ref VPCCIDR
@@ -86,7 +86,7 @@ Resources:
             - '-'
             - - 'Eval'
               - 'Cloudmeet'
-              - 'CTR-SG'          
+              - 'CTR-SG'
   MountTargetAz1a:
     Type: 'AWS::EFS::MountTarget'
     Properties:
@@ -111,28 +111,28 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Eval-Rchat-NLB-EIP-1 
+          Value: Eval-Rchat-NLB-EIP-1
   RCHATEVALEIP2:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Eval-Rchat-NLB-EIP-2 
+          Value: Eval-Rchat-NLB-EIP-2
   JVBEVALEIP1:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Eval-JVB-NLB-EIP-1 
+          Value: Eval-JVB-NLB-EIP-1
   JVBEVALEIP2:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: Eval-JVB-NLB-EIP-2 
+          Value: Eval-JVB-NLB-EIP-2
   RCHATEVALNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -147,7 +147,7 @@ Resources:
       Tags:
         - Key: Name
           Value: Eval-RCHAT-NLB
- 
+
   RchatEvalNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -157,7 +157,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref RCHATEVALTLSTG
-  
+
   RCHATEVALTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -167,7 +167,7 @@ Resources:
       HealthCheckPort: '443'
       HealthCheckIntervalSeconds: 30
       HealthyThresholdCount: 10
-      UnhealthyThresholdCount: 10      
+      UnhealthyThresholdCount: 10
       Port: 443
       Protocol: TCP
       TargetGroupAttributes:
@@ -192,7 +192,7 @@ Resources:
       Tags:
         - Key: Name
           Value: Eval-JVB-NLB
- 
+
   JVBEVALNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -202,7 +202,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref JVBEVALTLSTG
-  
+
   JVBEVALTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -222,7 +222,7 @@ Resources:
         - Key: Name
           Value: Eval-JVB-TLS-TG
       TargetType: ip
-      
+
   JVBEVALUDPListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -275,27 +275,27 @@ Resources:
 
 Outputs:
   ContainerSecurityGroup:
-    Description: Container Security Group Name 
+    Description: Container Security Group Name
     Value: !Ref 'ContainerSecurityGroup'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroup' ] ]
   RCHATEVALTLSTG:
-    Description: Rchat TLS Target Group Name 
+    Description: Rchat TLS Target Group Name
     Value: !Ref 'RCHATEVALTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATEVALTLSTG' ] ]
   JVBEVALTLSTG:
-    Description: Jitsi TLS Target Group Name 
+    Description: Jitsi TLS Target Group Name
     Value: !Ref 'JVBEVALTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEVALTLSTG' ] ]
   JVBEVALUDPTG:
-    Description: Jitsi UDP Target Group Name 
+    Description: Jitsi UDP Target Group Name
     Value: !Ref 'JVBEVALUDPTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEVALUDPTG' ] ]
   JVBDiscoveryService:
-    Description: Jitsi Local Discovery Service 
+    Description: Jitsi Local Discovery Service
     Value: !GetAtt 'JVBDiscoveryService.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBDiscoveryService' ] ]

@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required Task Definitions for new VPC implementation (evaluation version) (qp-1rds3mip3)
+  AWS CloudFormation template to create the required Task Definitions for new VPC implementation (evaluation version) (qs-1shsu3b6d)
 Parameters:
   Password:
     Description: Password is required for multiple internal Service (Mandatory)
     Type: String
     NoEcho: true
-    Default: ''  
+    Default: ''
   CloudmeetDomain:
     Description: Cloudmeet Domain Name (Mandatory)
     Type: String
@@ -25,7 +25,7 @@ Parameters:
   ElasticFileSystemResource:
     Description: EFS Name required for Container Storage
     Type: String
-    Default: ''   
+    Default: ''
   TaskExecutionRole:
     Description: This is TaskExecutionRole required for TaskDefinition
     Type: String
@@ -33,39 +33,39 @@ Parameters:
   TaskScaleRole:
     Description: This is TaskScaleRole required for TaskDefinition
     Type: String
-    Default: '' 
+    Default: ''
   EfsAccessPoint1:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint2:
     Description: EFS Accesspoint 2 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint3:
     Description: EFS Accesspoint 3 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint4:
     Description: EFS Accesspoint 4 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint5:
     Description: EFS Accesspoint 5 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint6:
     Description: EFS Accesspoint 6 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint7:
     Description: EFS Accesspoint 7 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint8:
     Description: EFS Accesspoint 8 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
 
 Resources:
   rchatloggroup:
@@ -79,8 +79,8 @@ Resources:
   jvbloggroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: jvb-log	
-      
+      LogGroupName: jvb-log
+
   ECSTDRCHAT:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
@@ -177,7 +177,7 @@ Resources:
             - Name: DB_PASSWORD
               Value: 'keycloak'
             - Name: KEYCLOAK_PASSWORD
-              Value: !Ref Password           
+              Value: !Ref Password
           Image: 'public.ecr.aws/o4e1o9s6/keycloakcloudmeet:latest'
           DependsOn:
             - ContainerName: mariadb
@@ -428,7 +428,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password              
+              Value: !Ref Password
             - Name: JICOFO_COMPONENT_SECRET
               Value: !Ref Password
             - Name: PUBLIC_URL
@@ -437,7 +437,7 @@ Resources:
                 - - 'https://'
                   - !Ref CompanyName
                   - '-'
-                  - !Ref CloudcallDomain              
+                  - !Ref CloudcallDomain
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_prosody_volume
@@ -468,7 +468,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password             
+              Value: !Ref Password
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jicofo_volume
@@ -503,7 +503,7 @@ Resources:
                 - - 'https://'
                   - !Ref CompanyName
                   - '-'
-                  - !Ref CloudcallDomain         
+                  - !Ref CloudcallDomain
             - Name: JIBRI_RECORDER_PASSWORD
               Value: !Ref Password
             - Name: JIBRI_XMPP_PASSWORD
@@ -515,7 +515,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password          
+              Value: !Ref Password
           EnvironmentFiles:
             - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_ssl.env'
               Type: s3
@@ -598,7 +598,7 @@ Resources:
               Type: s3
           Environment:
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password      
+              Value: !Ref Password
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jvb_volume2

@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create a new ECS Cluster, EFS Access Points, and task roles (qp-1rds3mip3)
+  AWS CloudFormation template to create a new ECS Cluster, EFS Access Points, and task roles (qs-1shsu3b8k)
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
-      ClusterName: !Join 
+      ClusterName: !Join
         - '-'
         - - dev-cloudmeet
           - !Ref 'AWS::AccountId'
@@ -33,7 +33,7 @@ Resources:
     Properties:
       AccessPointTags:
         - Key: Name
-          Value: Mariadb-Volume        
+          Value: Mariadb-Volume
       FileSystemId: !Ref ElasticFileSystemResource
       RootDirectory:
         CreationInfo:
@@ -155,7 +155,7 @@ Resources:
                 Resource: !GetAtt ElasticFileSystemResource.Arn
                 Condition:
                   StringEquals:
-                    'elasticfilesystem:AccessPointArn': 
+                    'elasticfilesystem:AccessPointArn':
                       - !GetAtt EfsAccessPoint1.Arn
                       - !GetAtt EfsAccessPoint2.Arn
                       - !GetAtt EfsAccessPoint3.Arn
@@ -204,7 +204,7 @@ Resources:
               - 'arn:aws:s3:::cloudmeet-cluster-stack'
 Outputs:
   ECSCluster:
-    Description: The ECS Cluster 
+    Description: The ECS Cluster
     Value: !Ref 'ECSCluster'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSCluster' ] ]
@@ -214,45 +214,45 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ElasticFileSystemResource' ] ]
   EfsAccessPoint1:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint1'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint1' ] ]
   EfsAccessPoint2:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint2'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint2' ] ]
   EfsAccessPoint3:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint3'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint3' ] ]
   EfsAccessPoint4:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint4'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint4' ] ]
   EfsAccessPoint5:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint5'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint5' ] ]
   EfsAccessPoint6:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint6'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint6' ] ]      
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint6' ] ]
   EfsAccessPoint7:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint7'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint7' ] ]      
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint7' ] ]
   EfsAccessPoint8:
-    Description: The ARN of the EFS Access Point 
+    Description: The ARN of the EFS Access Point
     Value: !Ref 'EfsAccessPoint8'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint8' ] ]      
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint8' ] ]
   TaskScaleRole:
     Description: The ARN of the ECS Task Scale role
     Value: !GetAtt 'TaskScaleRole.Arn'

@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required Task Definitions for new VPC implementation (production version) (qp-1rds3mip3)
+  AWS CloudFormation template to create the required Task Definitions for new VPC implementation (production version) (qs-1shsu3b8e)
 Parameters:
   Password:
     Description: Password is required for multiple internal Service (Mandatory)
     Type: String
     NoEcho: true
-    Default: '' 
+    Default: ''
   CloudmeetDomain:
     Description: Cloudmeet Domain Name (Mandatory)
     Type: String
@@ -20,7 +20,7 @@ Parameters:
   ElasticFileSystemResource:
     Description: EFS Name required for Container Storage
     Type: String
-    Default: ''   
+    Default: ''
   TaskExecutionRole:
     Description: This is TaskExecutionRole required for TaskDefinition
     Type: String
@@ -28,39 +28,39 @@ Parameters:
   TaskScaleRole:
     Description: This is TaskScaleRole required for TaskDefinition
     Type: String
-    Default: '' 
+    Default: ''
   EfsAccessPoint1:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint2:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint3:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint4:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint5:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint6:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint7:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
   EfsAccessPoint8:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''     
+    Default: ''
 
 Resources:
   rchatloggroup:
@@ -74,8 +74,8 @@ Resources:
   jvbloggroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: jvb-log	
-      
+      LogGroupName: jvb-log
+
   ECSTDRCHAT:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
@@ -392,7 +392,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password              
+              Value: !Ref Password
             - Name: JICOFO_COMPONENT_SECRET
               Value: !Ref Password
             - Name: PUBLIC_URL
@@ -466,7 +466,7 @@ Resources:
               Value: !Join
                 - ''
                 - - 'https://'
-                  - !Ref CloudcallDomain         
+                  - !Ref CloudcallDomain
             - Name: JIBRI_RECORDER_PASSWORD
               Value: !Ref Password
             - Name: JIBRI_XMPP_PASSWORD
@@ -478,7 +478,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password          
+              Value: !Ref Password
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jvb_volume
@@ -558,7 +558,7 @@ Resources:
               Type: s3
           Environment:
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password          
+              Value: !Ref Password
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jvb_volume2

@@ -3,7 +3,7 @@ Description: This main template creates a VPC infrastructure for a multi-AZ, mul
   deployment of a workload on AWS. It deploys a VPC with EFS and a FARGATE cluster
   behind an NLB. The cluster is configured to use an S3 bucket for read environment variable.
   This template also creates Fargate ECS instances and related resources. You will be billed for
-  the AWS resources used if you create a stack from this template.  (qp-1rds3mip3)
+  the AWS resources used if you create a stack from this template.  (qs-1shsu3b2d)
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -24,7 +24,7 @@ Metadata:
       - PrivateSubnet1ACIDR
       - PrivateSubnet2ACIDR
       - PrivateSubnet3ACIDR
-    - Label: 
+    - Label:
         default: 'Parameters that need attention'
       Parameters:
       - Password
@@ -32,7 +32,7 @@ Metadata:
       - CloudmeetDomain
       - CloudcallDomain
       - CertificateID
-    - Label: 
+    - Label:
         default: 'AWS Quick Start configuration'
       Parameters:
         - QSS3BucketName
@@ -64,10 +64,10 @@ Metadata:
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 bucket Region      
+        default: Quick Start S3 bucket Region
 Parameters:
-  DeploymentType: 
-    AllowedValues: 
+  DeploymentType:
+    AllowedValues:
       - 'Eval'
       - 'Prod'
     Default: 'Eval'
@@ -85,9 +85,9 @@ Parameters:
     AllowedValues:
       - '2'
       - '3'
-    Description: Number of Availability Zone parameter must be integer 
+    Description: Number of Availability Zone parameter must be integer
     Default: '2'
-    Type: String    
+    Type: String
   CreateNATGateways:
     AllowedValues:
       - 'true'
@@ -143,11 +143,11 @@ Parameters:
   CloudmeetDomain:
     Description: CloudmeetDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
     Type: String
-    Default: ''    
+    Default: ''
   CloudcallDomain:
     Description: CloudcallDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
     Type: String
-    Default: ''  
+    Default: ''
   CertificateID:
     Description: SSL CertificateID Required for SSL enabled NLB
     Type: String
@@ -173,45 +173,45 @@ Conditions:
     - !Ref DeploymentType
     - 'Eval'
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']  
+  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']
 Rules:
   ValidateProdDeploymentType:
-    RuleCondition: !Equals 
+    RuleCondition: !Equals
       - !Ref DeploymentType
       - 'Prod'
     Assertions:
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CertificateID
             - ''
         AssertDescription: ACM Certificate value cannot be empty if Production Environment is selected.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CloudmeetDomain
             - ''
         AssertDescription: CloudmeetDomain is mandatory for the Cloudmeet Application.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CloudcallDomain
             - ''
         AssertDescription: CloudcallDomain is mandatory for the Cloudmeet Application.
   ValidateEvalDeploymentType:
-    RuleCondition: !Equals 
+    RuleCondition: !Equals
       - !Ref DeploymentType
       - 'Eval'
     Assertions:
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CompanyName
             - ''
         AssertDescription: CompanyName is mandatory for the Subdomain {i.g. companyname.cloudmeet.biz and companyname-call.cloudmeet.biz).
@@ -228,7 +228,7 @@ Resources:
           Fn::Join:
           - ','
           - Ref: AvailabilityZones
-        NumberOfAZs: 
+        NumberOfAZs:
           Ref: NumberOfAvalZones
         PublicSubnet1CIDR:
           Ref: PublicSubnet1CIDR
@@ -246,7 +246,7 @@ Resources:
           Ref: VPCCIDR
         CreateNATGateways:
           Ref: CreateNATGateways
-          
+
   ECSClusEfsRoleStack:
     DependsOn: VPCStack
     Type: AWS::CloudFormation::Stack
@@ -255,7 +255,7 @@ Resources:
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/CF-ECS-EFS-TASKROLE.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-  
+
   ProdTaskDefStack:
     Condition: ProdEnv
     DependsOn: ECSClusEfsRoleStack
@@ -297,11 +297,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8          
+          - Outputs.EfsAccessPoint8
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource          
+          - Outputs.ElasticFileSystemResource
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -355,11 +355,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8          
+          - Outputs.EfsAccessPoint8
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource          
+          - Outputs.ElasticFileSystemResource
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -369,7 +369,7 @@ Resources:
           - ECSClusEfsRoleStack
           - Outputs.TaskExecutionRole
         CompanyName: !Ref CompanyName
-        Password: !Ref Password        
+        Password: !Ref Password
   ProdNetworkStack:
     Condition: ProdEnv
     DependsOn: ProdTaskDefStack
