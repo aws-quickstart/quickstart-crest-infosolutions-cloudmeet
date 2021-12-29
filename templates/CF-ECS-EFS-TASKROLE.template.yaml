@@ -1,11 +1,19 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create a new ECS Cluster, EFS Access Points, and task roles (qs-1shsu3b8k)
+  This aws cloudFormation template to create a new ECS Cluster, EIPs, EFS Accesspoint, TaskScale Role and TaskExecutionRole in the VPC to work with Fargate in Create Cluster Wizard. (qs-1shsu3b8k)
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
 Resources:
   ECSCluster:
     Type: 'AWS::ECS::Cluster'
     Properties:
-      ClusterName: !Join
+      ClusterName: !Join 
         - '-'
         - - dev-cloudmeet
           - !Ref 'AWS::AccountId'
@@ -17,6 +25,36 @@ Resources:
         - FARGATE
         - FARGATE_SPOT
 
+  RCHATEIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Rchat-EIP-1 
+  RCHATEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Rchat-EIP-2
+
+  JVBEIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: JVB-EIP-1 
+  JVBEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: JVB-EIP-2 
+
   ElasticFileSystemResource:
     Type: AWS::EFS::FileSystem
     Properties:
@@ -25,7 +63,7 @@ Resources:
       - Key: Name
         Value: !Join
           - '-'
-          - - dev-cloudmeet
+          - - Cloudmeet
             - !Ref 'AWS::AccountId'
             - efs
   EfsAccessPoint1:
@@ -33,7 +71,7 @@ Resources:
     Properties:
       AccessPointTags:
         - Key: Name
-          Value: Mariadb-Volume
+          Value: Mariadb-Volume        
       FileSystemId: !Ref ElasticFileSystemResource
       RootDirectory:
         CreationInfo:
@@ -155,7 +193,7 @@ Resources:
                 Resource: !GetAtt ElasticFileSystemResource.Arn
                 Condition:
                   StringEquals:
-                    'elasticfilesystem:AccessPointArn':
+                    'elasticfilesystem:AccessPointArn': 
                       - !GetAtt EfsAccessPoint1.Arn
                       - !GetAtt EfsAccessPoint2.Arn
                       - !GetAtt EfsAccessPoint3.Arn
@@ -184,7 +222,7 @@ Resources:
             Action: 'sts:AssumeRole'
       Path: /
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
         - !Ref S3AccessTaskPolicy
   S3AccessTaskPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -196,15 +234,15 @@ Resources:
             Action:
               - s3:GetObject
             Resource:
-              - 'arn:aws:s3:::cloudmeet-cluster-stack/*'
+              - !Sub 'arn:${AWS::Partition}:s3:::cloudmeet-cluster-stack/*'
           - Effect: Allow
             Action:
               - s3:GetBucketLocation
             Resource:
-              - 'arn:aws:s3:::cloudmeet-cluster-stack'
+              - !Sub 'arn:${AWS::Partition}:s3:::cloudmeet-cluster-stack'
 Outputs:
   ECSCluster:
-    Description: The ECS Cluster
+    Description: The ECS Cluster 
     Value: !Ref 'ECSCluster'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSCluster' ] ]
@@ -214,45 +252,45 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ElasticFileSystemResource' ] ]
   EfsAccessPoint1:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint1'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint1' ] ]
   EfsAccessPoint2:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint2'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint2' ] ]
   EfsAccessPoint3:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint3'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint3' ] ]
   EfsAccessPoint4:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint4'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint4' ] ]
   EfsAccessPoint5:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint5'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint5' ] ]
   EfsAccessPoint6:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint6'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint6' ] ]
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint6' ] ]      
   EfsAccessPoint7:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint7'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint7' ] ]
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint7' ] ]      
   EfsAccessPoint8:
-    Description: The ARN of the EFS Access Point
+    Description: The ARN of the EFS Access Point 
     Value: !Ref 'EfsAccessPoint8'
     Export:
-      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint8' ] ]
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'EfsAccessPoint8' ] ]      
   TaskScaleRole:
     Description: The ARN of the ECS Task Scale role
     Value: !GetAtt 'TaskScaleRole.Arn'
@@ -263,3 +301,23 @@ Outputs:
     Value: !GetAtt 'TaskExecutionRole.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'TaskExecutionRole' ] ]
+  RCHATEIP1:
+    Description: The Allocation ID of EIP1 
+    Value: !GetAtt 'RCHATEIP1.AllocationId'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATEIP1' ] ]
+  RCHATEIP2:
+    Description: The Allocation ID of EIP2 
+    Value: !GetAtt 'RCHATEIP2.AllocationId'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATEIP2' ] ]
+  JVBEIP1:
+    Description: The Allocation ID of EIP1 
+    Value: !GetAtt 'JVBEIP1.AllocationId'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEIP1' ] ]
+  JVBEIP2:
+    Description: The Allocation ID of EIP1 
+    Value: !GetAtt 'JVBEIP2.AllocationId'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEIP2' ] ]

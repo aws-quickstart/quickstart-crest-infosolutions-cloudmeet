@@ -1,6 +1,81 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation templates to create the required network resources for existing VPC implementation (evaluation version) (qs-1shsu3b55)
+  This aws cloudFormation Network Resources template to create Network Resources like Security Groups,Target Group,Loadbalancer,Listner,EIP in the VPC to work with Fargate in Create Cluster Wizard (evaluation version). (qs-1shsu3b55)
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W1001 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Existing VPC Network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - NumberOfAvalZones
+      - AvailabilityZones
+      - CreatePublicSubnets
+      - PublicSubnet1
+      - PublicSubnet2
+      - PublicSubnet3
+      - ElasticFileSystemResource
+      - RCHATEVALEIP1
+      - RCHATEVALEIP2
+      - JVBEVALEIP1
+      - JVBEVALEIP2      
+    - Label:
+        default: Create Private Subnet and NATGateways
+      Parameters:
+      - CreatePrivateSubnets
+      - CreateNATGateways
+      - PrivateSubnet1ACIDR
+      - PrivateSubnet2ACIDR
+      - PrivateSubnet3ACIDR
+      - SecurityIngressCidrIp
+    ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      NumberOfAvalZones:
+        default: Number Of Availability Zones
+      CreatePublicSubnets:
+        default: Create public subnets
+      PublicSubnet1:
+        default: Public subnet 1 ID
+      PublicSubnet2:
+        default: Public subnet 2 ID
+      PublicSubnet3:
+        default: Public subnet 3 ID
+      CreateNATGateways:
+        default: Create NAT Gateways
+      CreatePrivateSubnets:
+        default: Create private subnets
+      PrivateSubnet1ACIDR:
+        default: Private subnet 1A CIDR
+      PrivateSubnet2ACIDR:
+        default: Private subnet 2A CIDR
+      PrivateSubnet3ACIDR:
+        default: Private subnet 3A CIDR
+      VPCID:
+        default: VPC ID
+      VPCCIDR:
+        default: VPC CIDR Block
+      SecurityIngressCidrIp:
+        default: Allowed SecurityIngressCidrIp Block
+      ElasticFileSystemResource:
+        default: ElasticFileSystemResource
+      RCHATEVALEIP1:
+        default: EIP1 for Rocket Chat LoadBalancer
+      RCHATEVALEIP2:
+        default: EIP2 for Rocket Chat LoadBalancer
+      JVBEVALEIP1:
+        default: EIP1 for JVB LoadBalancer
+      JVBEVALEIP2:
+        default: EIP2 for JVB LoadBalancer
 Parameters:
   AvailabilityZones:
     Description: 'List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved.'
@@ -19,9 +94,9 @@ Parameters:
     Type: String
     Default: ''
   NumberOfAvalZones:
-    Description: Number of Availability Zone parameter must be integer
+    Description: Number of Availability Zone parameter must be integer 
     Default: ''
-    Type: String
+    Type: String    
   CreateNATGateways:
     AllowedValues:
       - 'true'
@@ -66,7 +141,7 @@ Parameters:
     Description: VPC CIDR
     Default: ''
     Type: String
-  SecurityIngressCidrIp:
+  SecurityIngressCidrIp:    
     Description: VPC SecurityIngressCidrIp
     Type: String
     Default: 0.0.0.0/0
@@ -74,10 +149,29 @@ Parameters:
     Description: EFS Name required for MountTarget
     Type: String
     Default: ''
+  RCHATEVALEIP1:
+    Description: EIP1 for Rocket Chat LoadBalancer
+    Type: String
+    Default: ''
+  RCHATEVALEIP2:
+    Description: EIP2 for Rocket Chat LoadBalancer
+    Type: String
+    Default: ''
+  JVBEVALEIP1:
+    Description: EIP1 for JVB LoadBalancer
+    Type: String
+    Default: ''
+  JVBEVALEIP2:
+    Description: EIP2 for JVB LoadBalancer
+    Type: String
+    Default: ''
 Conditions:
   3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']
   PublicSubnetsCondition: !Equals [!Ref 'CreatePublicSubnets', 'true']
   PrivateSubnetsCondition: !Equals [!Ref 'CreatePrivateSubnets', 'true']
+  PublicSubnets&3AZCondition: !And
+    - !Condition 'PublicSubnetsCondition'
+    - !Condition '3AZCondition'
   PrivateSubnets&3AZCondition: !And
     - !Condition 'PrivateSubnetsCondition'
     - !Condition '3AZCondition'
@@ -104,7 +198,7 @@ Rules:
       - Assert: !Or
           - !Equals [!Ref CreatePrivateSubnets, 'true']
           - !Equals [!Ref CreatePublicSubnets, 'true']
-        AssertDescription: At least one of CreatePublicSubnets or CreatePrivateSubnets must be set to 'true'
+        AssertDescription: At least one of CreatePublicSubnets or CreatePrivateSubnets must be set to 'true'    
 Resources:
   PrivateSubnet1A:
     Condition: PrivateSubnetsCondition
@@ -277,7 +371,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Allowed Ports
-      VpcId: !Ref VPCID
+      VpcId: !Ref VPCID 
       SecurityGroupIngress:
         - IpProtocol: ALL
           CidrIp: !Ref VPCCIDR
@@ -313,9 +407,10 @@ Resources:
         - Key: Name
           Value: !Join
             - '-'
-            - - 'eval'
-              - 'cloudmeet'
-              - 'ctr-sg'
+            - - 'Eval'
+              - 'Cloudmeet'
+              - 'CTR-SG'          
+
   MountTargetAz1a:
     Type: 'AWS::EFS::MountTarget'
     Properties:
@@ -334,34 +429,16 @@ Resources:
       SecurityGroups:
         - !Ref ContainerSecurityGroup
 
-  RCHATEVALEIP1:
-    Type: AWS::EC2::EIP
+  MountTargetAz1c:
+    Condition: PrivateSubnets&3AZCondition
+    Type: 'AWS::EFS::MountTarget'
     Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: eval-rchat-nlb-eip-1
-  RCHATEVALEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: eval-rchat-nlb-eip-2
-  JVBEVALEIP1:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: eval-jvb-nlb-eip-1
-  JVBEVALEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: eval-jvb-nlb-eip-2
+      FileSystemId: !Ref ElasticFileSystemResource
+      SubnetId:
+        Ref: "PrivateSubnet3A"
+      SecurityGroups:
+        - !Ref ContainerSecurityGroup
+
   RCHATEVALNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -369,14 +446,14 @@ Resources:
       Scheme: internet-facing
       Type: network
       SubnetMappings:
-        - AllocationId: !GetAtt RCHATEVALEIP1.AllocationId
+        - AllocationId: !Ref RCHATEVALEIP1
           SubnetId: !Ref PublicSubnet1
-        - AllocationId: !GetAtt RCHATEVALEIP2.AllocationId
+        - AllocationId: !Ref RCHATEVALEIP2
           SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
           Value: eval-meet-rchat-nlb
-
+ 
   RchatEvalNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -386,17 +463,17 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref RCHATEVALTLSTG
-
+  
   RCHATEVALTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: eval-rchat-nlb-targetgroup
+      Name: Eval-Rchat-NLB-TG
       VpcId: !Ref VPCID
       HealthCheckEnabled: true
       HealthCheckPort: '443'
       HealthCheckIntervalSeconds: 30
       HealthyThresholdCount: 10
-      UnhealthyThresholdCount: 10
+      UnhealthyThresholdCount: 10      
       Port: 443
       Protocol: TCP
       TargetGroupAttributes:
@@ -404,24 +481,24 @@ Resources:
           Value: '60'
       Tags:
         - Key: Name
-          Value: eval-rchat-nlb-tg
+          Value: Eval-Rchat-NLB-TG
       TargetType: ip
 
   JVBEVALNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: eval-call-jvb-nlb
+      Name: Eval-JVB-NLB
       Scheme: internet-facing
       Type: network
       SubnetMappings:
-        - AllocationId: !GetAtt JVBEVALEIP1.AllocationId
+        - AllocationId: !Ref JVBEVALEIP1
           SubnetId: !Ref PublicSubnet1
-        - AllocationId: !GetAtt JVBEVALEIP2.AllocationId
+        - AllocationId: !Ref JVBEVALEIP2
           SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
-          Value: eval-call-jvb-nlb
-
+          Value: Eval-JVB-NLB
+ 
   JVBEVALNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -431,11 +508,11 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref JVBEVALTLSTG
-
+  
   JVBEVALTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: eval-jvb-tcp-tg
+      Name: Eval-JVB-TCP-TG
       VpcId: !Ref VPCID
       HealthCheckEnabled: true
       HealthCheckPort: '443'
@@ -449,9 +526,9 @@ Resources:
           Value: '60'
       Tags:
         - Key: Name
-          Value: eval-call-jvb-tcp-tg
+          Value: Eval-JVB-TCP-TG
       TargetType: ip
-
+      
   JVBEVALUDPListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -465,7 +542,7 @@ Resources:
   JVBEVALUDPTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: eval-jvb-udp-tg
+      Name: Eval-JVB-UDP-TG
       VpcId: !Ref VPCID
       HealthCheckEnabled: true
       HealthCheckPort: '80'
@@ -479,13 +556,13 @@ Resources:
           Value: '60'
       Tags:
         - Key: Name
-          Value: eval-call-jvb-udp-tg
+          Value: Eval-JVB-UDP-TG
       TargetType: ip
 
   JVBPrivateNamespace:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
-      Name: local
+      Name: temp
       Vpc: !Ref VPCID
 
   JVBDiscoveryService:
@@ -522,27 +599,37 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PrivateSubnet3AID' ] ]
   ContainerSecurityGroup:
-    Description: Container Security Group Name
+    Description: Container Security Group Name 
     Value: !Ref 'ContainerSecurityGroup'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroup' ] ]
   RCHATEVALTLSTG:
-    Description: Rchat TLS Target Group Name
+    Description: Rchat TLS Target Group Name 
     Value: !Ref 'RCHATEVALTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATEVALTLSTG' ] ]
   JVBEVALTLSTG:
-    Description: Jitsi TLS Target Group Name
+    Description: Jitsi TLS Target Group Name 
     Value: !Ref 'JVBEVALTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEVALTLSTG' ] ]
   JVBEVALUDPTG:
-    Description: Jitsi UDP Target Group Name
+    Description: Jitsi UDP Target Group Name 
     Value: !Ref 'JVBEVALUDPTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEVALUDPTG' ] ]
   JVBDiscoveryService:
-    Description: Jitsi Local Discovery Service
+    Description: Jitsi Local Discovery Service 
     Value: !GetAtt 'JVBDiscoveryService.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBDiscoveryService' ] ]
+  RCHATEVALNLBUrl:
+    Description: The URL of the Rocket Chat Netwrok Load Balancer 
+    Value: !GetAtt 'RCHATEVALNLB.DNSName'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATEVALNLBUrl' ] ]
+  JVBEVALNLBUrl:
+    Description: The URL of the Jitsi Call Netwrok Load Balancer 
+    Value: !GetAtt 'JVBEVALNLB.DNSName'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBEVALNLBUrl' ] ]
