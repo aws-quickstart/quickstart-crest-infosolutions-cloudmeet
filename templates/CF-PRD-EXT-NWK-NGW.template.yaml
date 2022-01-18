@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This aws cloudFormation Network Resources template to create Network Resources like PrivateSubnet,NatGateway,Security Groups,Target Group,Loadbalancer,Listner,EIP in the Existing VPC to work with Fargate in Create Cluster Wizard (production version) (qs-1shsu3b6j)
+  This AWS CloudFormation Network Resources template to create Network Resources like PrivateSubnet,NatGateway,Security Groups,Target Group,Loadbalancer,Listner,EIP in the Existing VPC to work with Fargate in Create Cluster Wizard (production version) (qs-1shsu3b6j)
 Metadata:
   cfn-lint:
     config:
@@ -634,12 +634,12 @@ Outputs:
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBDiscoveryService' ] ]
   RCHATPRODNLBUrl:
-    Description: The URL of the Rocket Chat Netwrok Load Balancer 
-    Value: !GetAtt 'RCHATPRODLNLB.DNSName'
+    Description: The URL of the Rocket Chat Network Load Balancer 
+    Value: !GetAtt 'RCHATPRODNLB.DNSName'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATPRODNLBUrl' ] ]
   JVBPRODNLBUrl:
-    Description: The URL of the Jitsi Call Netwrok Load Balancer 
+    Description: The URL of the Jitsi Call Network Load Balancer 
     Value: !GetAtt 'JVBPRODNLB.DNSName'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODNLBUrl' ] ]

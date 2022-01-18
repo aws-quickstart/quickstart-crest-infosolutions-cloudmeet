@@ -106,19 +106,19 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 172.31.112.0/19
-    Description: CIDR block for private subnet 1A located in Availability Zone 1
+    Description: CIDR block for private subnet 1A located in Availability Zone 1. Please update the default value as per your AWS environment.
     Type: String
   PrivateSubnet2ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 172.31.128.0/19
-    Description: CIDR block for private subnet 2A located in Availability Zone 2
+    Description: CIDR block for private subnet 2A located in Availability Zone 2. Please update the default value as per your AWS environment.
     Type: String
   PrivateSubnet3ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 172.31.144.0/19
-    Description: CIDR block for private subnet 3A located in Availability Zone 3
+    Description: CIDR block for private subnet 3A located in Availability Zone 3. Please update the default value as per your AWS environment.
     Type: String
   PublicSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
@@ -138,7 +138,7 @@ Parameters:
     Default: ''
     NoEcho: true
   CompanyName:
-    Description: Company First Name Required for subdomain(Max First 8 Characters)
+    Description: Please provide Company First Name required for subdomain(Max First 8 Characters)(Require only for Eval Environment)
     Type: String
     Default: ''
   CloudmeetDomain:
@@ -150,7 +150,7 @@ Parameters:
     Type: String
     Default: ''  
   CertificateID:
-    Description: SSL CertificateID Required for SSL enabled NLB
+    Description: Please provide SSL CertificateID required for SSL enabled NLB
     Type: String
     Default: ''
   QSS3BucketName:

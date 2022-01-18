@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This aws cloudFormation Network Resources template to create Network Resources like Security Groups,Target Group,Loadbalancer,Listner,EIP in the VPC to work with Fargate in Create Cluster Wizard (evaluation version). (qs-1shsu3b55)
+  This AWS CloudFormation Network Resources template to create Network Resources like Security Groups,Target Group,Loadbalancer,Listner,EIP in the existing VPC to work with Fargate in Create Cluster Wizard (evaluation version). (qs-1shsu3b55)
 Metadata:
   cfn-lint:
     config:

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This aws cloudFormation template to create a new ECS Cluster, EIPs, EFS Accesspoint, TaskScale Role and TaskExecutionRole in the VPC to work with Fargate in Create Cluster Wizard. (qs-1shsu3b8k)
+  This AWS CloudFormation template to create a new ECS Cluster, EIPs, EFS Accesspoint, TaskScale Role and TaskExecutionRole in the VPC to work with Fargate in Create Cluster Wizard. (qs-1shsu3b8k)
 Metadata:
   cfn-lint:
     config:
@@ -15,9 +15,9 @@ Resources:
     Properties:
       ClusterName: !Join 
         - '-'
-        - - dev-cloudmeet
+        - - Cloudmeet
           - !Ref 'AWS::AccountId'
-          - cluster
+          - Cluster
       ClusterSettings:
         - Name: containerInsights
           Value: enabled

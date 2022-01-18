@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This aws cloudFormation template to create a new Task Definition in the Cluster stack to work with Fargate container Definition Wizard (production version) (qs-1shsu3b7h)
+  This AWS CloudFormation template to create a new Task Definition in the Cluster stack to work with Fargate container Definition Wizard (production version) (qs-1shsu3b7h)
 Metadata:
   cfn-lint:
     config:

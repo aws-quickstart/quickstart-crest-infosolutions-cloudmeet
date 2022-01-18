@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This aws cloudFormation template to create Service Resources like Rocket Chat, Jitsi and JVB in the Existing VPC to work with Fargate in Create Service Wizard (production version) (qs-1shsu3b73)
+  This AWS CloudFormation template to create Service Resources like Rocket Chat, Jitsi and JVB in the Existing VPC to work with Fargate in Create Service Wizard (production version) (qs-1shsu3b73)
 Metadata:
   cfn-lint:
     config:
@@ -66,9 +66,9 @@ Metadata:
       CloudcallDomain:  
         default: Cloudcall Domain Name
       RCHATPRODNLBURL:
-        default: The URL of the Rocket Chat Netwrok Load Balancer
+        default: The URL of the Rocket Chat Network Load Balancer
       JVBPRODNLBURL:
-        default: The URL of the Cloudmeet Call Netwrok Load Balancer
+        default: The URL of the Cloudmeet Call Network Load Balancer
 Parameters:
   ECSCluster:
     Description: ECS Cluster Name
@@ -258,12 +258,12 @@ Outputs:
     Description: The version of the template used by Create Cluster Wizard
     Value: 1.1.0
   MeetLoadBalancersDns:
-    Description: The DNS of Rocket Chat Netwrok Load Balancer 
+    Description: The DNS of Rocket Chat Network Load Balancer 
     Value: !Ref 'RCHATPRODNLBURL'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'MeetLoadBalancersDns' ] ]  
   CallLoadBalancersDns:
-    Description: The DNS of the JVB Call Netwrok Load Balancer 
+    Description: The DNS of the JVB Call Network Load Balancer 
     Value: !Ref 'JVBPRODNLBURL'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'CallLoadBalancersDns' ] ]
