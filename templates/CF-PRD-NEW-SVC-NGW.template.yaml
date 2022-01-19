@@ -1,43 +1,99 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation Network Resources template to create the required container-based services on ECS for new VPC implementation (production version) (qs-1shsu3b80)
+  This AWS CloudFormation template to create Service Resources like Rocket Chat, Jitsi and JVB in the VPC to work with Fargate in Create Service Wizard (production version) (qs-1shsu3b80)
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Network configuration
+      Parameters:
+      - NumberOfAvalZones
+      - PrivateSubnet1A
+      - PrivateSubnet2A
+      - PrivateSubnet3A
+      - ECSCluster
+      - ContainerSecurityGroup
+      - JVBDiscoveryService
+      - JVBPRODTLSTG
+      - JVBPRODUDPTG
+      - RCHATPRODTLSTG
+      - RCHATPRODNLBURL
+      - JVBPRODNLBURL
+      - CloudmeetDomain
+      - CloudcallDomain
+    - Label:
+        default: Container Task Definition
+      Parameters:
+      - ECSTDJVB
+      - ECSTDJITSI
+      - ECSTDRCHAT
+    ParameterLabels:
+      PrivateSubnet1A:
+        default: Private subnet 1A
+      PrivateSubnet2A:
+        default: Private subnet 2A
+      PrivateSubnet3A:
+        default: Private subnet 3A
+      NumberOfAvalZones:
+        default: Number Of Availability Zones
+      ECSCluster:
+        default: ECSCluster Name
+      ContainerSecurityGroup:
+        default: Container Security Group ID
+      JVBDiscoveryService:
+        default: JVB Discovery Service Name
+      JVBPRODTLSTG:
+        default: JVB TLS Target Group
+      JVBPRODUDPTG:
+        default: JVB UDP Target Group
+      RCHATPRODTLSTG:
+        default: RCHAT TLS Target Group
+      CloudmeetDomain:
+        default: Cloudmeet Domain Name
+      CloudcallDomain:  
+        default: Cloudcall Domain Name
+      RCHATPRODNLBURL:
+        default: The URL of the Rocket Chat Network Load Balancer
+      JVBPRODNLBURL:
+        default: The URL of the Cloudmeet Call Network Load Balancer
+      ECSTDJVB:
+        default: JVB Task Definition
+      ECSTDJITSI:
+        default: JITSI Task Definition
+      ECSTDRCHAT:
+        default: RCHAT Task Definition
 Parameters:
   ECSCluster:
     Description: ECS Cluster Name
     Type: String
-    Default: ''
-  PublicSubnet1:
-    Description: VPC Public Subnet 1
-    Type: String
-    Default: ''
-  PublicSubnet2:
-    Description: VPC Public Subnet 2
-    Type: String
-    Default: ''
-  PublicSubnet3:
-    Description: VPC Public Subnet 3
-    Type: String
-    Default: ''
+    Default: ''  
   PrivateSubnet1A:
     Description: VPC Private Subnet 1A
     Type: String
-    Default: ''
+    Default: ''      
   PrivateSubnet2A:
     Description: VPC Private Subnet 2A
     Type: String
-    Default: ''
+    Default: ''     
   PrivateSubnet3A:
     Description: VPC Private Subnet 3A
     Type: String
-    Default: ''
-  VPCID:
-    Description: VPC ID
+    Default: ''     
+  NumberOfAvalZones:
+    Description: Number Of Availability Zones
     Type: String
     Default: ''
   ContainerSecurityGroup:
     Description: Container Security Group Name
     Type: String
-    Default: ''
+    Default: ''      
   JVBDiscoveryService:
     Description: JVB DiscoveryService Arn
     Type: String
@@ -53,35 +109,53 @@ Parameters:
   RCHATPRODTLSTG:
     Description: Rchat TLS Target Group ID
     Type: String
+    Default: ''  
+  RCHATPRODNLBURL:
+    Description: Cloudmeet NLB DNS
+    Type: String
+    Default: ''
+  JVBPRODNLBURL:
+    Description: Cloudmeet Call NLB DNS
+    Type: String
+    Default: ''
+  CloudmeetDomain:
+    Description: The Cloudmeet Domain Name
+    Type: String
+    Default: ''
+  CloudcallDomain:
+    Description: The Cloudmeet Domain Name
+    Type: String
     Default: ''
   ECSTDJVB:
     Description: JVB Task Definition
     Type: String
-    Default: ''
+    Default: ''  
   ECSTDJITSI:
     Description: JITSI Task Definition
     Type: String
-    Default: ''
+    Default: ''  
   ECSTDRCHAT:
     Description: RCHAT Task Definition
     Type: String
-    Default: ''
+    Default: ''  
+Conditions:
+  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']
 Resources:
   JVBScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
       MaxCapacity: 5
-      MinCapacity: 1
-      RoleARN:
-        Fn::Sub: 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      MinCapacity: 1  
+      RoleARN: 
+        Fn::Sub: 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
       ServiceNamespace: ecs
       ScalableDimension: 'ecs:service:DesiredCount'
-      ResourceId: !Join
+      ResourceId: !Join 
         - /
         - - service
           - !Ref ECSCluster
           - !GetAtt JVB2Service.Name
-
+  
   JVBServiceScalingPolicyCPU:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -95,10 +169,10 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: ECSServiceAverageCPUUtilization
 
-  JVBService:
+  JVBService: 
     Type: AWS::ECS::Service
-    Properties:
-      Cluster:
+    Properties: 
+      Cluster: 
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -108,28 +182,29 @@ Resources:
       HealthCheckGracePeriodSeconds: 600
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets:
+          Subnets: 
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
+            - !If [3AZCondition, !Ref 'PrivateSubnet3A', !Ref 'AWS::NoValue']
           SecurityGroups:
-            - !Ref ContainerSecurityGroup
+            - !Ref ContainerSecurityGroup    
       LoadBalancers:
         - ContainerName: jitsi-web
           ContainerPort: 80
           TargetGroupArn: !Ref JVBPRODTLSTG
         - ContainerName: jitsi-jvb
           ContainerPort: 10000
-          TargetGroupArn: !Ref JVBPRODUDPTG
-      TaskDefinition:
+          TargetGroupArn: !Ref JVBPRODUDPTG          
+      TaskDefinition: 
         Ref: "ECSTDJITSI"
       ServiceRegistries:
         - RegistryArn: !Ref JVBDiscoveryService
       PlatformVersion: "1.4.0"
 
-  JVB2Service:
+  JVB2Service: 
     Type: AWS::ECS::Service
-    Properties:
-      Cluster:
+    Properties: 
+      Cluster: 
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -138,19 +213,20 @@ Resources:
         MinimumHealthyPercent: 100
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets:
+          Subnets: 
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
+            - !If [3AZCondition, !Ref 'PrivateSubnet3A', !Ref 'AWS::NoValue']
           SecurityGroups:
             - !Ref ContainerSecurityGroup
-      TaskDefinition:
-        Ref: "ECSTDJVB"
+      TaskDefinition: 
+        Ref: "ECSTDJVB"        
       PlatformVersion: "1.4.0"
 
-  RCHATService:
+  RCHATService: 
     Type: AWS::ECS::Service
-    Properties:
-      Cluster:
+    Properties: 
+      Cluster: 
         Ref: "ECSCluster"
       LaunchType: FARGATE
       DesiredCount: 1
@@ -160,19 +236,20 @@ Resources:
       HealthCheckGracePeriodSeconds: 600
       NetworkConfiguration:
         AwsvpcConfiguration:
-          Subnets:
+          Subnets: 
             - !Ref PrivateSubnet1A
             - !Ref PrivateSubnet2A
+            - !If [3AZCondition, !Ref 'PrivateSubnet3A', !Ref 'AWS::NoValue']
           SecurityGroups:
             - !Ref ContainerSecurityGroup
       LoadBalancers:
         - ContainerName: cm-web
           ContainerPort: 80
           TargetGroupArn: !Ref RCHATPRODTLSTG
-      TaskDefinition:
+      TaskDefinition: 
         Ref: "ECSTDRCHAT"
-      PlatformVersion: "1.4.0"
-
+      PlatformVersion: "1.4.0"    
+     
 Outputs:
   UsedByECSCreateCluster:
     Description: Flag used by Elastic Container Service Create Cluster Wizard
@@ -180,3 +257,23 @@ Outputs:
   TemplateVersion:
     Description: The version of the template used by Create Cluster Wizard
     Value: 1.1.0
+  MeetLoadBalancersDns:
+    Description: The DNS of Rocket Chat Network Load Balancer 
+    Value: !Ref 'RCHATPRODNLBURL'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'MeetLoadBalancersDns' ] ]  
+  CallLoadBalancersDns:
+    Description: The DNS of the JVB Call Network Load Balancer 
+    Value: !Ref 'JVBPRODNLBURL'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'CallLoadBalancersDns' ] ]
+  CloudmeetDomain:
+    Description: The Cloudmeet Domain Name 
+    Value: !Ref 'CloudmeetDomain'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'CloudmeetDomain' ] ]
+  CloudcallDomain:
+    Description: The Cloudcall Domain Name 
+    Value: !Ref 'CloudcallDomain'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'CloudcallDomain' ] ]

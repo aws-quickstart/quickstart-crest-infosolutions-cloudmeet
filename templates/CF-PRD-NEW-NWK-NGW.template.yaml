@@ -1,7 +1,73 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required network resources for new VPC implementation (production version) (qs-1shsu3b7o)
+  This AWS CloudFormation Network Resources template to create Network Resources like PrivateSubnet,NatGateway,Security Groups,Target Group,Loadbalancer,Listner,EIP in the VPC to work with Fargate in Create Cluster Wizard (production version) (qs-1shsu3b7o)
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Existing VPC Network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - NumberOfAvalZones
+      - PublicSubnet1
+      - PublicSubnet2
+      - PublicSubnet3
+      - ElasticFileSystemResource
+      - PrivateSubnet1A
+      - PrivateSubnet2A
+      - PrivateSubnet3A
+      - SecurityIngressCidrIp
+      - CertificateID
+      - RCHATPRODEIP1
+      - RCHATPRODEIP2
+      - JVBPRODEIP1
+      - JVBPRODEIP2      
+    ParameterLabels:
+      NumberOfAvalZones:
+        default: Number Of Availability Zones
+      PublicSubnet1:
+        default: Public subnet 1 ID
+      PublicSubnet2:
+        default: Public subnet 2 ID
+      PublicSubnet3:
+        default: Public subnet 3 ID
+      PrivateSubnet1A:
+        default: Private subnet 1A
+      PrivateSubnet2A:
+        default: Private subnet 2A
+      PrivateSubnet3A:
+        default: Private subnet 3A
+      VPCID:
+        default: VPC ID
+      VPCCIDR:
+        default: VPC CIDR Block
+      SecurityIngressCidrIp:
+        default: Allowed SecurityIngressCidrIp Block
+      ElasticFileSystemResource:
+        default: ElasticFileSystemResource
+      RCHATPRODEIP1:
+        default: EIP1 for Rocket Chat LoadBalancer
+      RCHATPRODEIP2:
+        default: EIP2 for Rocket Chat LoadBalancer
+      JVBPRODEIP1:
+        default: EIP1 for JVB LoadBalancer
+      JVBPRODEIP2:
+        default: EIP2 for JVB LoadBalancer
+      CertificateID:
+        default: CertificateID for Secure NLB
 Parameters:
+  NumberOfAvalZones:
+    Description: Number of Availability Zone parameter must be integer 
+    Default: ''
+    Type: String  
   PublicSubnet1:
     Description: VPC Public Subnet 1
     Type: String
@@ -34,7 +100,7 @@ Parameters:
     Description: VPC CIDR
     Default: ''
     Type: String
-  SecurityIngressCidrIp:
+  SecurityIngressCidrIp:    
     Description: VPC SecurityIngressCidrIp
     Type: String
     Default: 0.0.0.0/0
@@ -42,17 +108,34 @@ Parameters:
     Description: EFS Name required for MountTarget
     Type: String
     Default: ''
+  RCHATPRODEIP1:
+    Description: EIP1 for Rocket Chat LoadBalancer
+    Type: String
+    Default: ''
+  RCHATPRODEIP2:
+    Description: EIP2 for Rocket Chat LoadBalancer
+    Type: String
+    Default: ''
+  JVBPRODEIP1:
+    Description: EIP1 for JVB LoadBalancer
+    Type: String
+    Default: ''
+  JVBPRODEIP2:
+    Description: EIP2 for JVB LoadBalancer
+    Type: String
+    Default: ''	  
   CertificateID:
     Description: SSL CertificateID Required for SSL enabled NLB
     Type: String
-    Default: ''
-
+    Default: '' 
+Conditions:
+  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']
 Resources:
   ContainerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: ECS Allowed Ports
-      VpcId: !Ref VPCID
+      VpcId: !Ref VPCID 
       SecurityGroupIngress:
         - IpProtocol: ALL
           CidrIp: !Ref VPCCIDR
@@ -90,7 +173,7 @@ Resources:
             - '-'
             - - 'Prod'
               - 'cloudmeet'
-              - 'ctr-sg'
+              - 'ctr-sg'          
   MountTargetAz1a:
     Type: 'AWS::EFS::MountTarget'
     Properties:
@@ -109,34 +192,16 @@ Resources:
       SecurityGroups:
         - !Ref ContainerSecurityGroup
 
-  RCHATPRODEIP1:
-    Type: AWS::EC2::EIP
+  MountTargetAz1c:
+    Condition: 3AZCondition
+    Type: 'AWS::EFS::MountTarget'
     Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: Prod-Rchat-NLB-EIP-1
-  RCHATPRODEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: Prod-Rchat-NLB-EIP-2
-  JVBPRODEIP1:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: Prod-JVB-NLB-EIP-1
-  JVBPRODEIP2:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: Prod-JVB-NLB-EIP-2
+      FileSystemId: !Ref ElasticFileSystemResource
+      SubnetId:
+        Ref: "PrivateSubnet3A"
+      SecurityGroups:
+        - !Ref ContainerSecurityGroup
+        
   RCHATPRODNLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -144,14 +209,14 @@ Resources:
       Scheme: internet-facing
       Type: network
       SubnetMappings:
-        - AllocationId: !GetAtt RCHATPRODEIP1.AllocationId
+        - AllocationId: !Ref RCHATPRODEIP1
           SubnetId: !Ref PublicSubnet1
-        - AllocationId: !GetAtt RCHATPRODEIP2.AllocationId
+        - AllocationId: !Ref RCHATPRODEIP2
           SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
           Value: Prod-Rchat-NLB
-
+ 
   RchatPRODNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -163,7 +228,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref RCHATPRODTLSTG
-
+  
   RCHATPRODTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -173,7 +238,7 @@ Resources:
       HealthCheckPort: '80'
       HealthCheckIntervalSeconds: 30
       HealthyThresholdCount: 10
-      UnhealthyThresholdCount: 10
+      UnhealthyThresholdCount: 10      
       Port: 80
       Protocol: TCP
       TargetGroupAttributes:
@@ -191,14 +256,14 @@ Resources:
       Scheme: internet-facing
       Type: network
       SubnetMappings:
-        - AllocationId: !GetAtt JVBPRODEIP1.AllocationId
+        - AllocationId: !Ref JVBPRODEIP1
           SubnetId: !Ref PublicSubnet1
-        - AllocationId: !GetAtt JVBPRODEIP2.AllocationId
+        - AllocationId: !Ref JVBPRODEIP2
           SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
           Value: Prod-JVB-NLB
-
+ 
   JVBPRODNlbListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -210,7 +275,7 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref JVBPRODTLSTG
-
+  
   JVBPRODTLSTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -230,7 +295,7 @@ Resources:
         - Key: Name
           Value: Prod-JVB-TLS-TG
       TargetType: ip
-
+      
   JVBPRODUDPListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -283,27 +348,37 @@ Resources:
 
 Outputs:
   ContainerSecurityGroup:
-    Description: Container Security Group Name
+    Description: Container Security Group Name 
     Value: !Ref 'ContainerSecurityGroup'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroup' ] ]
   RCHATPRODTLSTG:
-    Description: Rchat TLS Target Group Name
+    Description: Rchat TLS Target Group Name 
     Value: !Ref 'RCHATPRODTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATPRODTLSTG' ] ]
   JVBPRODTLSTG:
-    Description: Jitsi TLS Target Group Name
+    Description: Jitsi TLS Target Group Name 
     Value: !Ref 'JVBPRODTLSTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODTLSTG' ] ]
   JVBPRODUDPTG:
-    Description: Jitsi UDP Target Group Name
+    Description: Jitsi UDP Target Group Name 
     Value: !Ref 'JVBPRODUDPTG'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODUDPTG' ] ]
   JVBDiscoveryService:
-    Description: Jitsi Local Discovery Service
+    Description: Jitsi Local Discovery Service 
     Value: !GetAtt 'JVBDiscoveryService.Arn'
     Export:
       Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBDiscoveryService' ] ]
+  RCHATPRODNLBUrl:
+    Description: The URL of the Rocket Chat Network Load Balancer 
+    Value: !GetAtt 'RCHATPRODNLB.DNSName'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'RCHATPRODNLBUrl' ] ]
+  JVBPRODNLBUrl:
+    Description: The URL of the Jitsi Call Network Load Balancer 
+    Value: !GetAtt 'JVBPRODNLB.DNSName'
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'JVBPRODNLBUrl' ] ]

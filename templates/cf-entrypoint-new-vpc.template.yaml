@@ -1,10 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This main template creates a VPC infrastructure for a multi-AZ, multi-tier
-  deployment of a workload on AWS. It deploys a VPC with EFS and a FARGATE cluster
+Description: This master template creates a VPC infrastructure for a multi-AZ, multi-tier
+  deployment of a workload on AWS. It deploys a VPC with EFS and a FARGET cluster
   behind an NLB. The cluster is configured to use an S3 bucket for read environment variable.
-  This template also creates Fargate ECS instances and related resources. You will be billed for
-  the AWS resources used if you create a stack from this template.  (qs-1shsu3b2d)
+  This template creates Fargat ECS instances and related resources. You will be billed for
+  the AWS resources used if you create a stack from this template. (qs-1shsu3b2d)
 Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W3005 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -17,14 +25,14 @@ Metadata:
       - VPCCIDR
       - NumberOfAvalZones
       - AvailabilityZones
-      - PublicSubnet1ID
-      - PublicSubnet2ID
-      - PublicSubnet3ID
+      - PublicSubnet1CIDR
+      - PublicSubnet2CIDR
+      - PublicSubnet3CIDR
       - CreateNATGateways
       - PrivateSubnet1ACIDR
       - PrivateSubnet2ACIDR
       - PrivateSubnet3ACIDR
-    - Label:
+    - Label: 
         default: 'Parameters that need attention'
       Parameters:
       - Password
@@ -32,7 +40,7 @@ Metadata:
       - CloudmeetDomain
       - CloudcallDomain
       - CertificateID
-    - Label:
+    - Label: 
         default: 'AWS Quick Start configuration'
       Parameters:
         - QSS3BucketName
@@ -43,12 +51,12 @@ Metadata:
         default: Availability Zones
       NumberOfAvalZones:
         default: Number Of Availability Zones
-      PublicSubnet1ID:
-        default: Public subnet 1 ID
-      PublicSubnet2ID:
-        default: Public subnet 2 ID
-      PublicSubnet3ID:
-        default: Public subnet 3 ID
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      PublicSubnet3CIDR:
+        default: Public subnet 3 CIDR
       CreateNATGateways:
         default: Create NAT Gateways
       PrivateSubnet1ACIDR:
@@ -59,15 +67,17 @@ Metadata:
         default: Private subnet 3A CIDR
       VPCCIDR:
         default: VPC CIDR Block
+      CertificateID:
+        default: CertificateID for Secure NLB      
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 bucket Region
+        default: Quick Start S3 bucket Region      
 Parameters:
-  DeploymentType:
-    AllowedValues:
+  DeploymentType: 
+    AllowedValues: 
       - 'Eval'
       - 'Prod'
     Default: 'Eval'
@@ -76,18 +86,18 @@ Parameters:
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     Type: String
-    Description: CIDR block parameter must be in the form x.x.x.x/16
+    Description: CIDR block parameter must be in the form x.x.x.x/16. Please update the default value as per your AWS environment.
     Default: 10.0.0.0/16
   AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC. Min 2 Availability Zones are used for this deployment, and the logical order of your selections is preserved.
+    Description: List of Availability Zones to use for the subnets in the VPC. Min 2 Availability Zones will be use for this deployment, and the logical order of your selections is preserved. Please select min '2' Availability Zones from the list as per your requirement.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   NumberOfAvalZones:
     AllowedValues:
       - '2'
       - '3'
-    Description: Number of Availability Zone parameter must be integer
+    Description: Number of Availability Zone parameter must be integer. You may choose from the list as per your requirement. 
     Default: '2'
-    Type: String
+    Type: String    
   CreateNATGateways:
     AllowedValues:
       - 'true'
@@ -98,38 +108,38 @@ Parameters:
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.128.0/19
-    Description: CIDR block for private subnet 1A located in Availability Zone 1
+    Default: 10.0.0.0/19
+    Description: CIDR block for private subnet 1A located in Availability Zone 1. Please update the default value as per your AWS environment.
     Type: String
   PrivateSubnet2ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.64.0/19
-    Description: CIDR block for private subnet 2A located in Availability Zone 2
+    Default: 10.0.32.0/19
+    Description: CIDR block for private subnet 2A located in Availability Zone 2. Please update the default value as per your AWS environment.
     Type: String
   PrivateSubnet3ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/19
-    Description: CIDR block for private subnet 3A located in Availability Zone 3
+    Default: 10.0.64.0/19
+    Description: CIDR block for private subnet 3A located in Availability Zone 3. Please update the default value as per your AWS environment.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.32.0/20
-    Description: CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.
+    Description: CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1. Please update the default value as per your AWS environment.
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.16.0/20
-    Description: CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.
+    Description: CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2. Please update the default value as per your AWS environment.
     Type: String
   PublicSubnet3CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.0.0/20
-    Description: CIDR block for the public (DMZ) subnet 2 located in Availability Zone 3.
+    Description: CIDR block for the public (DMZ) subnet 2 located in Availability Zone 3. Please update the default value as per your AWS environment.
     Type: String
   Password:
     Description: Please provide password for multiple internal services use(Min 8 Alphanumeric Characters)
@@ -137,19 +147,19 @@ Parameters:
     Default: ''
     NoEcho: true
   CompanyName:
-    Description: Company First Name Required for subdomain(Max First 8 Characters)
+    Description: Please provide Company First Name required for subdomain(Max First 8 Characters)(Required only for Eval Env Deployment)
     Type: String
     Default: ''
   CloudmeetDomain:
-    Description: CloudmeetDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
+    Description: Please provide Cloudmeet Domain Name required for DNS Name(i.g. Cloudmeet.example.com)
     Type: String
-    Default: ''
+    Default: ''    
   CloudcallDomain:
-    Description: CloudcallDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
+    Description: Please provide Cloudcall Domain Name required for DNS Name(i.g. Cloudcall.example.com)
     Type: String
-    Default: ''
+    Default: ''  
   CertificateID:
-    Description: SSL CertificateID Required for SSL enabled NLB
+    Description: Please Provide SSL CertificateID required for SSL enabled NLB
     Type: String
     Default: ''
   QSS3BucketName:
@@ -173,45 +183,45 @@ Conditions:
     - !Ref DeploymentType
     - 'Eval'
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']
+  3AZCondition: !Equals [!Ref 'NumberOfAvalZones', '3']  
 Rules:
   ValidateProdDeploymentType:
-    RuleCondition: !Equals
+    RuleCondition: !Equals 
       - !Ref DeploymentType
       - 'Prod'
     Assertions:
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref CertificateID
             - ''
         AssertDescription: ACM Certificate value cannot be empty if Production Environment is selected.
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref CloudmeetDomain
             - ''
         AssertDescription: CloudmeetDomain is mandatory for the Cloudmeet Application.
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref CloudcallDomain
             - ''
         AssertDescription: CloudcallDomain is mandatory for the Cloudmeet Application.
   ValidateEvalDeploymentType:
-    RuleCondition: !Equals
+    RuleCondition: !Equals 
       - !Ref DeploymentType
       - 'Eval'
     Assertions:
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not
-          - !Equals
+      - Assert: !Not 
+          - !Equals 
             - !Ref CompanyName
             - ''
         AssertDescription: CompanyName is mandatory for the Subdomain {i.g. companyname.cloudmeet.biz and companyname-call.cloudmeet.biz).
@@ -228,7 +238,7 @@ Resources:
           Fn::Join:
           - ','
           - Ref: AvailabilityZones
-        NumberOfAZs:
+        NumberOfAZs: 
           Ref: NumberOfAvalZones
         PublicSubnet1CIDR:
           Ref: PublicSubnet1CIDR
@@ -246,7 +256,7 @@ Resources:
           Ref: VPCCIDR
         CreateNATGateways:
           Ref: CreateNATGateways
-
+          
   ECSClusEfsRoleStack:
     DependsOn: VPCStack
     Type: AWS::CloudFormation::Stack
@@ -255,7 +265,7 @@ Resources:
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/CF-ECS-EFS-TASKROLE.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-
+  
   ProdTaskDefStack:
     Condition: ProdEnv
     DependsOn: ECSClusEfsRoleStack
@@ -297,11 +307,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8
+          - Outputs.EfsAccessPoint8          
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource
+          - Outputs.ElasticFileSystemResource          
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -355,11 +365,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8
+          - Outputs.EfsAccessPoint8          
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource
+          - Outputs.ElasticFileSystemResource          
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -369,7 +379,7 @@ Resources:
           - ECSClusEfsRoleStack
           - Outputs.TaskExecutionRole
         CompanyName: !Ref CompanyName
-        Password: !Ref Password
+        Password: !Ref Password        
   ProdNetworkStack:
     Condition: ProdEnv
     DependsOn: ProdTaskDefStack
@@ -388,6 +398,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.VPCCIDR
+        NumberOfAvalZones: !Ref NumberOfAvalZones
         PublicSubnet1:
           Fn::GetAtt:
           - VPCStack
@@ -396,7 +407,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PublicSubnet2ID
-        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', '']
+        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', !Ref 'AWS::NoValue']
         PrivateSubnet1A:
           Fn::GetAtt:
           - VPCStack
@@ -405,11 +416,27 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PrivateSubnet2AID
-        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', '']
+        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', !Ref 'AWS::NoValue']
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
           - Outputs.ElasticFileSystemResource
+        RCHATPRODEIP1:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.RCHATEIP1
+        RCHATPRODEIP2:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.RCHATEIP2
+        JVBPRODEIP1:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.JVBEIP1
+        JVBPRODEIP2:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.JVBEIP2
         CertificateID: !Ref CertificateID
   EvalNetworkStack:
     Condition: EvalEnv
@@ -429,6 +456,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.VPCCIDR
+        NumberOfAvalZones: !Ref NumberOfAvalZones
         PublicSubnet1:
           Fn::GetAtt:
           - VPCStack
@@ -437,7 +465,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PublicSubnet2ID
-        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', '']
+        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', !Ref 'AWS::NoValue']
         PrivateSubnet1A:
           Fn::GetAtt:
           - VPCStack
@@ -446,11 +474,27 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PrivateSubnet2AID
-        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', '']
+        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', !Ref 'AWS::NoValue']
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
           - Outputs.ElasticFileSystemResource
+        RCHATEVALEIP1:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.RCHATEIP1
+        RCHATEVALEIP2:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.RCHATEIP2
+        JVBEVALEIP1:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.JVBEIP1
+        JVBEVALEIP2:
+          Fn::GetAtt:
+          - ECSClusEfsRoleStack
+          - Outputs.JVBEIP2
   ProdServiceStack:
     Condition: ProdEnv
     DependsOn: ProdNetworkStack
@@ -461,19 +505,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        VPCID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.VPCID
-        PublicSubnet1:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet1ID
-        PublicSubnet2:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet2ID
-        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', '']
+        NumberOfAvalZones: !Ref NumberOfAvalZones
         PrivateSubnet1A:
           Fn::GetAtt:
           - VPCStack
@@ -482,7 +514,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PrivateSubnet2AID
-        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', '']
+        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', !Ref 'AWS::NoValue']
         ContainerSecurityGroup:
           Fn::GetAtt:
           - ProdNetworkStack
@@ -507,6 +539,16 @@ Resources:
           Fn::GetAtt:
           - ProdNetworkStack
           - Outputs.JVBDiscoveryService
+        RCHATPRODNLBURL:
+          Fn::GetAtt:
+          - ProdNetworkStack
+          - Outputs.RCHATPRODNLBUrl
+        JVBPRODNLBURL:
+          Fn::GetAtt:
+          - ProdNetworkStack
+          - Outputs.JVBPRODNLBUrl
+        CloudcallDomain: !Ref CloudcallDomain
+        CloudmeetDomain: !Ref CloudmeetDomain
         ECSTDJVB:
           Fn::GetAtt:
           - ProdTaskDefStack
@@ -529,19 +571,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        VPCID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.VPCID
-        PublicSubnet1:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet1ID
-        PublicSubnet2:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet2ID
-        PublicSubnet3: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PublicSubnet3ID', '']
+        NumberOfAvalZones: !Ref NumberOfAvalZones
         PrivateSubnet1A:
           Fn::GetAtt:
           - VPCStack
@@ -550,7 +580,7 @@ Resources:
           Fn::GetAtt:
           - VPCStack
           - Outputs.PrivateSubnet2AID
-        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', '']
+        PrivateSubnet3A: !If [3AZCondition, !GetAtt 'VPCStack.Outputs.PrivateSubnet3AID', !Ref 'AWS::NoValue']
         ContainerSecurityGroup:
           Fn::GetAtt:
           - EvalNetworkStack
@@ -575,6 +605,26 @@ Resources:
           Fn::GetAtt:
           - EvalNetworkStack
           - Outputs.JVBDiscoveryService
+        RCHATEVALNLBURL:
+          Fn::GetAtt:
+          - EvalNetworkStack
+          - Outputs.RCHATEVALNLBUrl
+        JVBEVALNLBURL:
+          Fn::GetAtt:
+          - EvalNetworkStack
+          - Outputs.JVBEVALNLBUrl
+        CloudcallDomain:
+          Fn::Join:
+          - ''
+          - - !Ref 'CompanyName'
+            - '-'
+            - 'call.cloudmeet.biz'          
+        CloudmeetDomain:
+          Fn::Join:
+          - ''
+          - - !Ref 'CompanyName'
+            - '.'
+            - 'cloudmeet.biz'
         ECSTDJVB:
           Fn::GetAtt:
           - EvalTaskDefStack

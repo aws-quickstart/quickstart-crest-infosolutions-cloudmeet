@@ -1,12 +1,71 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  AWS CloudFormation template to create the required Task Definitions for new VPC implementation (production version) (qs-1shsu3b8e)
+  This AWS CloudFormation template to create a new Task Definition in the Cluster stack to work with Fargate container Definition (production version) (qs-1shsu3b8e)
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9006 # temporary to get rid of warnings
+        - W9002 # temporary to get rid of warnings
+        - W9003 # temporary to get rid of warnings
+        - W9901 # Not passing all the default parameters to reduce verbosity
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Task Definition configuration
+      Parameters:
+      - Password
+      - CloudmeetDomain
+      - CloudcallDomain
+      - ElasticFileSystemResource
+      - TaskExecutionRole
+      - TaskScaleRole
+    - Label: 
+        default: 'EFS AccessPoint Parameters'
+      Parameters:
+      - EfsAccessPoint1
+      - EfsAccessPoint2
+      - EfsAccessPoint3
+      - EfsAccessPoint4
+      - EfsAccessPoint5
+      - EfsAccessPoint6
+      - EfsAccessPoint7
+      - EfsAccessPoint8
+    ParameterLabels:
+      Password:
+        default: Password
+      CloudmeetDomain:
+        default: CloudmeetDomain
+      CloudcallDomain:
+        default: CloudcallDomain
+      ElasticFileSystemResource:
+        default: ElasticFileSystemResource
+      TaskExecutionRole:
+        default: TaskExecutionRole
+      TaskScaleRole:
+        default: TaskScaleRole
+      EfsAccessPoint1:
+        default: EfsAccessPoint1
+      EfsAccessPoint2:
+        default: EfsAccessPoint2
+      EfsAccessPoint3:
+        default: EfsAccessPoint3
+      EfsAccessPoint4:
+        default: EfsAccessPoint4
+      EfsAccessPoint5:
+        default: EfsAccessPoint5
+      EfsAccessPoint6:
+        default: EfsAccessPoint6
+      EfsAccessPoint7:
+        default: EfsAccessPoint7
+      EfsAccessPoint8:
+        default: EfsAccessPoint8
 Parameters:
   Password:
     Description: Password is required for multiple internal Service (Mandatory)
     Type: String
     NoEcho: true
-    Default: ''
+    Default: '' 
   CloudmeetDomain:
     Description: Cloudmeet Domain Name (Mandatory)
     Type: String
@@ -20,7 +79,7 @@ Parameters:
   ElasticFileSystemResource:
     Description: EFS Name required for Container Storage
     Type: String
-    Default: ''
+    Default: ''   
   TaskExecutionRole:
     Description: This is TaskExecutionRole required for TaskDefinition
     Type: String
@@ -28,54 +87,54 @@ Parameters:
   TaskScaleRole:
     Description: This is TaskScaleRole required for TaskDefinition
     Type: String
-    Default: ''
+    Default: '' 
   EfsAccessPoint1:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint2:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint3:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint4:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint5:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint6:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint7:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
   EfsAccessPoint8:
     Description: EFS Accesspoint 1 required for Container Storage
     Type: String
-    Default: ''
+    Default: ''     
 
 Resources:
-  rchatloggroup:
+  RchatLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
       LogGroupName: rchat-log
-  jitsiloggroup:
+  JitsiLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
       LogGroupName: jitsi-log
-  jvbloggroup:
+  JvbLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: jvb-log
-
+      LogGroupName: jvb-log	
+      
   ECSTDRCHAT:
     Type: 'AWS::ECS::TaskDefinition'
     Properties:
@@ -84,7 +143,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           PortMappings:
@@ -102,7 +161,12 @@ Resources:
           Command:
             - '--default-authentication-plugin=mysql_native_password'
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
               Type: s3
           Environment:
             - Name: MYSQL_PASSWORD
@@ -120,7 +184,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           PortMappings:
@@ -128,7 +192,12 @@ Resources:
               Protocol: tcp
               ContainerPort: 1337
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
               Type: s3
           Environment:
             - Name: JITSISERVERNAME
@@ -146,7 +215,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           PortMappings:
@@ -158,7 +227,12 @@ Resources:
             - 0.0.0.0
             - '-Dkeycloak.import=/tmp/cloudmeet-realm.json'
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
               Type: s3
           Environment:
             - Name: DB_PASSWORD
@@ -174,7 +248,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           PortMappings:
@@ -185,7 +259,12 @@ Resources:
               Protocol: tcp
               ContainerPort: 443
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Strapi_KeyClk_Mdb_Environment_File.env'
               Type: s3
           Environment:
             - Name: SERVERNAME
@@ -203,7 +282,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint:
@@ -226,7 +305,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint:
@@ -239,7 +318,12 @@ Resources:
               echo "Tried $$i times. Waiting 10 secs..."; sleep 10; done; (exit
               $$s)
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Rocketchat_Environment_File.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Rocketchat_Environment_File.env'
               Type: s3
           Environment:
             - Name: ROOT_URL
@@ -270,7 +354,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref rchatloggroup
+              awslogs-group: !Ref RchatLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint:
@@ -331,7 +415,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref jitsiloggroup
+              awslogs-group: !Ref JitsiLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint: []
@@ -344,7 +428,12 @@ Resources:
               ContainerPort: 443
           Command: []
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_nossl.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Jitsi_Environment_File_nossl.env'
               Type: s3
           Environment:
             - Name: PUBLIC_URL
@@ -364,7 +453,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref jitsiloggroup
+              awslogs-group: !Ref JitsiLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint: []
@@ -380,7 +469,12 @@ Resources:
               ContainerPort: 5280
           Command: []
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_nossl.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Jitsi_Environment_File_nossl.env'
               Type: s3
           Environment:
             - Name: JIBRI_RECORDER_PASSWORD
@@ -392,7 +486,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password
+              Value: !Ref Password              
             - Name: JICOFO_COMPONENT_SECRET
               Value: !Ref Password
             - Name: PUBLIC_URL
@@ -409,14 +503,19 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref jitsiloggroup
+              awslogs-group: !Ref JitsiLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint: []
           PortMappings: []
           Command: []
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_nossl.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Jitsi_Environment_File_nossl.env'
               Type: s3
           Environment:
             - Name: JIBRI_RECORDER_PASSWORD
@@ -443,7 +542,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref jitsiloggroup
+              awslogs-group: !Ref JitsiLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint: []
@@ -459,14 +558,19 @@ Resources:
               ContainerPort: 4443
           Command: []
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_nossl.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Jitsi_Environment_File_nossl.env'
               Type: s3
           Environment:
             - Name: PUBLIC_URL
               Value: !Join
                 - ''
                 - - 'https://'
-                  - !Ref CloudcallDomain
+                  - !Ref CloudcallDomain         
             - Name: JIBRI_RECORDER_PASSWORD
               Value: !Ref Password
             - Name: JIBRI_XMPP_PASSWORD
@@ -478,7 +582,7 @@ Resources:
             - Name: JIGASI_XMPP_PASSWORD
               Value: !Ref Password
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password
+              Value: !Ref Password          
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jvb_volume
@@ -538,7 +642,7 @@ Resources:
         - LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref jvbloggroup
+              awslogs-group: !Ref JvbLogGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
           EntryPoint: []
@@ -554,11 +658,16 @@ Resources:
               ContainerPort: 4443
           Command: []
           EnvironmentFiles:
-            - Value: 'arn:aws:s3:::cloudmeet-cluster-stack/envfiles/Jitsi_Environment_File_nossl.env'
+            - Value: !Join
+                - ''
+                - - 'arn:aws:s3:::cloudmeetenv-'
+                  - !Ref 'AWS::Region'
+                  - '/'
+                  - 'envfiles/Jitsi_Environment_File_nossl.env'
               Type: s3
           Environment:
             - Name: JVB_AUTH_PASSWORD
-              Value: !Ref Password
+              Value: !Ref Password          
           MountPoints:
             - ContainerPath: /config
               SourceVolume: jitsi_jvb_volume2
