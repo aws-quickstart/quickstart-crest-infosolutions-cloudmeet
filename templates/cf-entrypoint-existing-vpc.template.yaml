@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This master template creates a VPC infrastructure for a multi-AZ, multi-tier
+Description: This entrypoint template creates a VPC infrastructure for a multi-AZ, multi-tier
   deployment of a workload on AWS. It deploys a VPC with EFS and a FARGET cluster
   behind an NLB. The cluster is configured to use an S3 bucket for read environment variable.
   This template creates Fargat ECS instances and related resources. You will be billed for
@@ -32,7 +32,7 @@ Metadata:
       - PrivateSubnet1ACIDR
       - PrivateSubnet2ACIDR
       - PrivateSubnet3ACIDR
-    - Label: 
+    - Label:
         default: 'Parameters that need attention'
       Parameters:
       - Password
@@ -40,7 +40,7 @@ Metadata:
       - CloudmeetDomain
       - CloudcallDomain
       - CertificateID
-    - Label: 
+    - Label:
         default: 'AWS Quick Start configuration'
       Parameters:
         - QSS3BucketName
@@ -72,10 +72,10 @@ Metadata:
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 bucket Region      
+        default: Quick Start S3 bucket Region
 Parameters:
-  DeploymentType: 
-    AllowedValues: 
+  DeploymentType:
+    AllowedValues:
       - 'Eval'
       - 'Prod'
     Default: 'Eval'
@@ -99,9 +99,9 @@ Parameters:
     AllowedValues:
       - '2'
       - '3'
-    Description: Number of Availability Zone parameter must be integer 
+    Description: Number of Availability Zone parameter must be integer
     Default: '2'
-    Type: String    
+    Type: String
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -144,11 +144,11 @@ Parameters:
   CloudmeetDomain:
     Description: CloudmeetDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
     Type: String
-    Default: ''    
+    Default: ''
   CloudcallDomain:
     Description: CloudcallDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
     Type: String
-    Default: ''  
+    Default: ''
   CertificateID:
     Description: Please provide SSL CertificateID required for SSL enabled NLB
     Type: String
@@ -177,42 +177,42 @@ Conditions:
   3AZCondition: !Equals [!Ref NumberOfAvalZones, '3']
 Rules:
   ValidateProdDeploymentType:
-    RuleCondition: !Equals 
+    RuleCondition: !Equals
       - !Ref DeploymentType
       - 'Prod'
     Assertions:
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CertificateID
             - ''
         AssertDescription: ACM Certificate value cannot be empty if Production Environment is selected.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CloudmeetDomain
             - ''
         AssertDescription: CloudmeetDomain is mandatory for the Cloudmeet Application.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CloudcallDomain
             - ''
         AssertDescription: CloudcallDomain is mandatory for the Cloudmeet Application.
   ValidateEvalDeploymentType:
-    RuleCondition: !Equals 
+    RuleCondition: !Equals
       - !Ref DeploymentType
       - 'Eval'
     Assertions:
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref Password
             - ''
         AssertDescription: Password is mandatory for multiple internal services.
-      - Assert: !Not 
-          - !Equals 
+      - Assert: !Not
+          - !Equals
             - !Ref CompanyName
             - ''
         AssertDescription: CompanyName is mandatory for the Subdomain {i.g. companyname.cloudmeet.biz and companyname-call.cloudmeet.biz).
@@ -224,7 +224,7 @@ Resources:
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/CF-ECS-EFS-TASKROLE.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-  
+
   ProdTaskDefStack:
     Condition: ProdEnv
     DependsOn: ECSClusEfsRoleStack
@@ -266,11 +266,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8          
+          - Outputs.EfsAccessPoint8
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource          
+          - Outputs.ElasticFileSystemResource
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -324,11 +324,11 @@ Resources:
         EfsAccessPoint8:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.EfsAccessPoint8          
+          - Outputs.EfsAccessPoint8
         ElasticFileSystemResource:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
-          - Outputs.ElasticFileSystemResource          
+          - Outputs.ElasticFileSystemResource
         TaskScaleRole:
           Fn::GetAtt:
           - ECSClusEfsRoleStack
@@ -338,7 +338,7 @@ Resources:
           - ECSClusEfsRoleStack
           - Outputs.TaskExecutionRole
         CompanyName: !Ref CompanyName
-        Password: !Ref Password        
+        Password: !Ref Password
   ProdNetworkStack:
     Condition: ProdEnv
     DependsOn: ProdTaskDefStack
@@ -549,7 +549,7 @@ Resources:
           - ''
           - - !Ref 'CompanyName'
             - '-'
-            - 'call.cloudmeet.biz'          
+            - 'call.cloudmeet.biz'
         CloudmeetDomain:
           Fn::Join:
           - ''
