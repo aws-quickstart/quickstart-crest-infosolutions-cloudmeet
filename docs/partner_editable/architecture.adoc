@@ -4,7 +4,7 @@ Deploying this Quick Start for a new virtual private cloud (VPC) with
 default parameters builds the following CloudMeet environment in the
 AWS Cloud.
 
-// Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in this repo. 
+// Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in this repo.
 
 [#architecture1]
 .Quick Start architecture for CloudMeet on AWS
@@ -19,22 +19,22 @@ best practices, to provide you with your own virtual network on AWS.*
 * In the private subnets:
 ** API application
 ** Databases
-** Authentication Module 
-** Chat Engine 
+** Authentication Module
+** Chat Engine
 ** XMPP Server
-** Video Bridge 
+** Video Bridge
 ** Conference Server
-** A private Video Bridge component will be deployed in an auto scaling group 
+** A private Video Bridge component will be deployed in an auto scaling group
 * In the public subnets, managed NAT gateways to allow outbound internet access for
 resources in the private subnets.*
 ** NAT gateway 1 will be attached to one Elastic IP address
 ** NAT gateway 2 will be attached to another Elastic IP address
-* For the Public Access, two Network Load Balancers are configured accoring to AWS best practices. 
+* For the Public Access, two Network Load Balancers are configured according to AWS best practices.
 ** NLB 1 will be attached to one Elastic IP address and will also be configured to use an SSL certificate from ACM.
 *** NLB 1 will have one TLS Listener, which will forward the TCP traffic to the web interface of video calling system
 *** NLB 1 will also have a UDP listener, which will forward the UDP traffic to the Video Bridge of the video calling system.
 ** NLB 2 will be attached to one Elastic IP address and will also be configured to use an SSL certificate from ACM.
-*** NLB 2 will have one TLS Listener, which will forward the TCP traffic to the web interface of the CloudMeet application. 
+*** NLB 2 will have one TLS Listener, which will forward the TCP traffic to the web interface of the CloudMeet application.
 * An Amazon Elastic Container Registry (Amazon ECR) repository that contains a Container images with optional plug-ins installed.
 * An Amazon Simple Storage Service (Amazon S3) bucket to store environment files.*
 
