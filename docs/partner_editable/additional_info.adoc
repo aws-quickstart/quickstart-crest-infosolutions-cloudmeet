@@ -1,0 +1,56 @@
+// Add steps as necessary for accessing the software, post-configuration, and testing. Don’t include full usage instructions for your software, but add links to your product documentation for that information.
+//Should any sections not be applicable, remove them
+
+== Post-deployment steps
+// If post-deployment steps are required, add them here. If not, remove the heading
+To test the system properly, the system requires to have a valid DNS entry pointing to the server's network load balancer's(NLB) ARN and also the NLB have SSL certificates and Elastic IPs attached to it. 
+
+Update your DNS and add two entries. One each for the web tier and video call tier. Take the ARNs of the network load balancers and add the appropriate entry in your DNS server.
+
+After the DNS propagation, the servers will be accessible via https://<The domain name entered by you in the template>/. in a browser 
+The browser will show a login page and you can test the login using username "jsnow" and password "jsnow".  You will be able to change/disable the test user accounts via the identity management system included in the stack.
+
+== Security
+Only port 22 is open at startup. You can restrict this port by providing an IP address or range of IP addresses for the AdminIngressLocation parameter. If you want to open
+these ports to everyone, set the IP address to 0.0.0.0/0. However, this is not advised because it leaves your instances insecure.
+
+== Additional Resources
+=== AWS services
+==== Amazon EBS
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AmazonEBS.html
+
+==== Amazon EC2
+https://aws.amazon.com/documentation/ec2/
+
+==== Amazon ECS
+https://aws.amazon.com/documentation/ecs/
+
+==== Amazon S3
+https://aws.amazon.com/documentation/s3/
+
+==== Amazon VPC
+https://aws.amazon.com/documentation/vpc/
+
+==== AWS CloudFormation
+https://aws.amazon.com/documentation/cloudformation/
+
+=== Cloudmeet on the AWS Cloud demo
+Sign up to launch the demo (AWS Team to assist us on the Demo page and place the link here)
+
+=== AWS Quick Start home page
+https://aws.amazon.com/quickstart/
+
+//== Best practices for using {partner-product-short-name} on AWS
+// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+
+//_Add any best practices for using the software._
+
+//== Security
+// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+
+//_Add any security-related information._
+
+//== Other useful information
+//Provide any other information of interest to users, especially focusing on areas where AWS or cloud usage differs from on-premises usage.
+
+//_Add any other details that will help the customer use the software on AWS._
