@@ -1,14 +1,10 @@
 This Quick Start deploys {partner-product-name} on the AWS Cloud. If you are unfamiliar with AWS Quick Starts, refer to the https://fwd.aws/rA69w?[AWS Quick Start General Information Guide^].
 
-This Quick Start is for users whos organizations were unprepared to deal with the challenges associated with the culture of work from home. There were challenges to keep the staff virtually connected with each-other, drive communication across teams, departments and organization, make announcements, and even hold meetings virtually, rather than booking a meeting room.
+This Quick Start is for organizations that were unprepared to address the challenges associated with a work-from-home culture. There were challenges to keep staff connected with each-other, drive communication—across teams, departments and organizations—make announcements, and hold virtual meetings.
 
-CloudMeet can address the current market needs completely and offers a fully secure, private, end-to-end encrypted and self-hosted unified communication platform. CloudMeet offers the following features to customers:
+{partner-product-short-name} addresses current market needs by offering a private, encrypted, and self-hosted communication platform. {partner-product-short-name} offers the following customer features:
 
-** Schedule and Conduct Online Meetings from any browser or iOS and Android devices.
-** Instant Chat, Team Chat with group chat and file sharing features.
-** Conduct Audio/video conferencing from any browser or iOS and Android devices.
-** Channels (Public, Private and Broadcast Channels) for departmental or across organization delivered directly to user’s device.
+* Schedule and conduct online meetings from any browser, including iOS and Android devices.
+* Instant chat and group chat with file-sharing features.
+* Public, private, and broadcast channels.
 
-// For advanced information about the product that this Quick Start deploys, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational Guide^].
-
-// For information about using this Quick Start for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].

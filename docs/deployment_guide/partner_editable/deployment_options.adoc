@@ -9,5 +9,5 @@ This Quick Start provides separate templates for these options. It also lets you
 
 The Quick Start can also be provisioned into two deployment types:
 
-* *Evaluation* for testing
-* *Production* for production
+* Evaluation (for testing)
+* Production (for production)

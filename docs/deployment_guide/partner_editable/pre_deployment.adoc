@@ -1,8 +1,6 @@
-//Include any predeployment steps here, such as signing up for a Marketplace AMI or making any changes to a partner account. If there are no predeployment steps, leave this file empty.
-
 == Predeployment steps
 
-==== Prepare your DNS (domain names) account
+=== Prepare your Domain Name System (DNS) account
 
-** The Quick Start requires you to have two sub-domains for which SSL certificates is required and should be uploaded to Amazon Certificate Manager (ACM) before launching the Quick Start. Domain name should be registered in your company's DNS servers.
-** Please note, SSL Certificate is only required for production deployment and not for the evaluation set-up.
+** This Quick Start requires two subdomains with SSL certificates, which should be uploaded to AWS Certificate Manager (ACM) before deployment. The domain name should be registered in your company's DNS servers.
+** Note that the Secure Socket Layer (SSL) certificate is required only for production deployments and not for the evaluation setup.

@@ -1,9 +1,9 @@
 :quickstart-project-name: quickstart-crest-infosolutions-cloudmeet
 :quickstart-github-org: aws-quickstart
-:partner-product-name: Crest Infosolutions Cloudmeet
-:partner-product-short-name: Cloudmeet
+:partner-product-name: Crest Infosolutions CloudMeet
+:partner-product-short-name: CloudMeet
 :partner-company-name: Crest Infosolutions
-:doc-month: March
+:doc-month: April
 :doc-year: 2022
 :partner-contributors: Rada Kichenin, Nishant Kumar, Kapil Jain, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
