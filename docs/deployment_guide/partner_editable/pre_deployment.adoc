@@ -2,5 +2,6 @@
 
 === Prepare your Domain Name System (DNS) account
 
-** This Quick Start requires two subdomains with SSL certificates, which should be uploaded to AWS Certificate Manager (ACM) before deployment. The domain name should be registered in your company's DNS servers.
-** Note that the Secure Socket Layer (SSL) certificate is required only for production deployments and not for the evaluation setup.
+This Quick Start requires two subdomains with SSL certificates, which should be uploaded to AWS Certificate Manager (ACM) before deployment. The domain name should be registered in your company's DNS servers.
+
+Note that the Secure Socket Layer (SSL) certificate is required only for production deployments and not for the evaluation setup.
