@@ -22,6 +22,7 @@ Verify that the {partner-product-short-name} application is running and accessib
 ** KEY Attribute3 - CloudmeetDomain
 ** KEY Attribute4 - CloudcallDomain
 ```
+[start=3]
 . Provide the *KEY Attributes* to support@progentys.com. The Progentys support team maps the shared values of these attributes to the provided domain name.
 . When Progentys completes the mapping, customers can use a web browser to access the URL (https://cloudmeetdomain/cloudmeet).
 . By default, the user name and password are `jsnow`.
@@ -34,6 +35,7 @@ To verify that the {partner-product-short-name} application is running and acces
 ```
 ** KEY Attribute - CloudmeetDomain
 ```
+[start=3]
 . Use a web browser to access the URL (https://cloudmeetdomain/cloudmeet).
 . By default, the user name and password are `jsnow`.
 

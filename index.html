@@ -965,6 +965,9 @@ AWS Cloud.</p>
 <p>A Network Load Balancer to balance traffic between Amazon Elastic Compute Cloud (Amazon EC2) instances.</p>
 </li>
 <li>
+<p>Amazon Elastic File System (Amazon EFS) to provide a serverless elastic file system for use with AWS Cloud services and on-premises resources.</p>
+</li>
+<li>
 <p>(Optional) Amazon Route 53 to provide hostnames.</p>
 </li>
 <li>
@@ -1022,15 +1025,11 @@ AWS Cloud.</p>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_prepare_your_domain_name_system_dns_account">Prepare your Domain Name System (DNS) account</h3>
-<div class="ulist">
-<ul>
-<li>
+<div class="paragraph">
 <p>This Quick Start requires two subdomains with SSL certificates, which should be uploaded to AWS Certificate Manager (ACM) before deployment. The domain name should be registered in your company&#8217;s DNS servers.</p>
-</li>
-<li>
+</div>
+<div class="paragraph">
 <p>Note that the Secure Socket Layer (SSL) certificate is required only for production deployments and not for the evaluation setup.</p>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -1131,7 +1130,7 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 </div>
 </div>
 <div class="olist arabic">
-<ol class="arabic">
+<ol class="arabic" start="3">
 <li>
 <p>Provide the <strong>KEY Attributes</strong> to <a href="mailto:support@progentys.com">support@progentys.com</a>. The Progentys support team maps the shared values of these attributes to the provided domain name.</p>
 </li>
@@ -1165,7 +1164,7 @@ Unless you are customizing the Quick Start templates for your own projects, don&
 </div>
 </div>
 <div class="olist arabic">
-<ol class="arabic">
+<ol class="arabic" start="3">
 <li>
 <p>Use a web browser to access the URL (<a href="https://cloudmeetdomain/cloudmeet" class="bare">https://cloudmeetdomain/cloudmeet</a>).</p>
 </li>
@@ -1244,7 +1243,7 @@ these ports to everyone, set the IP address to <code>0.0.0.0/0</code>. This is n
 </html>
 <!--
 repo commit:
-4359e180774fb4d757018ef725f5b2c9b6a613dc
+f2e61a1e8f7a598ddf476470f37d1162ab818d52
 
 submodule config:
  0955a35c7a5e463294433afb878608960a5dbe3a docs/boilerplate (0955a35)

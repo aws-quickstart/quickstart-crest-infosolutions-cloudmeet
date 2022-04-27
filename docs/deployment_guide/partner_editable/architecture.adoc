@@ -16,11 +16,11 @@ As shown in <<architecture1>>, this Quick Start sets up the following:
 * In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*
 * In the private subnets, AWS Fargate, located in an Auto Scaling group, to provide on-demand, compute capacity for containers. 
 * An internet gateway to allow access to the internet.*
-* A Network Load Balancer to balance traffic between Amazon Elastic Compute Cloud (Amazon EC2) instances. 
+* A Network Load Balancer to balance traffic between Amazon Elastic Compute Cloud (Amazon EC2) instances.
+* Amazon Elastic File System (Amazon EFS) to provide a serverless elastic file system for use with AWS Cloud services and on-premises resources.
 * (Optional) Amazon Route 53 to provide hostnames.
 * A user-provided certificate stored in AWS Certificate Manager.
 * An Amazon Simple Storage Service (Amazon S3) bucket that references external environment files.
 * Container images, stored in a public Amazon Elastic Container Registry (Amazon ECR).
-
 
 [.small]#* The template that deploys this Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
