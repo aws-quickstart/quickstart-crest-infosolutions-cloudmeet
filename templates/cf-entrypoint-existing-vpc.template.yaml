@@ -1,9 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: This entrypoint template creates a VPC infrastructure for a multi-AZ, multi-tier
-  deployment of a workload on AWS. It deploys a VPC with EFS and a FARGET cluster
-  behind an NLB. The cluster is configured to use an S3 bucket for read environment variable.
-  This template creates Fargat ECS instances and related resources. You will be billed for
-  the AWS resources used if you create a stack from this template. (qs-1shsu3b91)
+Description: This template creates a virtual private cloud (VPC) for a Multi-AZ, multitier deployment AWS workload. It deploys a VPC with Amazon Elastic File System (Amazon EFS) and AWS Fargate. The cluster is configured to use an Amazon Simple Storage Service (Amazon S3) bucket for environment variables. This template also creates Amazon Elastic Container Service (Amazon ECS) instances and related resources. (qs-1shsu3b91)
 Metadata:
   cfn-lint:
     config:
@@ -16,11 +12,11 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Application Version
+        default: Application version
       Parameters:
         - DeploymentType
     - Label:
-        default: Existing VPC Network configuration
+        default: Existing VPC configuration
       Parameters:
       - VPCID
       - VPCCIDRBLK
@@ -52,21 +48,21 @@ Metadata:
       NumberOfAvalZones:
         default: Number Of Availability Zones
       PublicSubnet1ID:
-        default: Public subnet 1 ID
+        default: Public subnet 1 CIDR
       PublicSubnet2ID:
-        default: Public subnet 2 ID
+        default: Public subnet 2 CIDR
       PublicSubnet3ID:
-        default: Public subnet 3 ID
+        default: Public subnet 3 CIDR
       PrivateSubnet1ACIDR:
-        default: Private subnet 1A CIDR
+        default: Private subnet 1 CIDR
       PrivateSubnet2ACIDR:
-        default: Private subnet 2A CIDR
+        default: Private subnet 2 CIDR
       PrivateSubnet3ACIDR:
-        default: Private subnet 3A CIDR
+        default: Private subnet 3 CIDR
       VPCID:
         default: VPC ID
       VPCCIDRBLK:
-        default: VPC CIDR Block
+        default: VPC CIDR block
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3KeyPrefix:
@@ -79,7 +75,7 @@ Parameters:
       - 'Eval'
       - 'Prod'
     Default: 'Eval'
-    Description: "Use Evaluation or Production version"
+    Description: Specify either the evaluation or production version.
     Type: String
   VPCID:
     Type: "AWS::EC2::VPC::Id"
@@ -88,69 +84,67 @@ Parameters:
   VPCCIDRBLK:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     Type: String
-    Description: CIDR block parameter must be in the form x.x.x.x/16
+    Description: CIDR block parameter must be in the form x.x.x.x/16.
     Default: 172.31.0.0/16
   AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC. Only
-      two Availability Zones are used for this deployment, and the logical order of
-      your selections is preserved.
+    Description: List of Availability Zones to use for the VPC subnets.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   NumberOfAvalZones:
     AllowedValues:
       - '2'
       - '3'
-    Description: Number of Availability Zone parameter must be integer
+    Description: Number of Availability Zone parameters must be an integer.
     Default: '2'
     Type: String
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
     Default: 172.31.112.0/19
-    Description: CIDR block for private subnet 1A located in Availability Zone 1. Please update the default value as per your AWS environment.
+    Description: CIDR block for private subnet 1, located in Availability Zone 1. Update the default value according to your AWS environment.
     Type: String
   PrivateSubnet2ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
     Default: 172.31.128.0/19
-    Description: CIDR block for private subnet 2A located in Availability Zone 2. Please update the default value as per your AWS environment.
+    Description: CIDR block for private subnet 2, located in Availability Zone 2. Update the default value according to your AWS environment.
     Type: String
   PrivateSubnet3ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28.
     Default: 172.31.144.0/19
-    Description: CIDR block for private subnet 3A located in Availability Zone 3. Please update the default value as per your AWS environment.
+    Description: CIDR block for private subnet 3, located in Availability Zone 3. Update the default value according to your AWS environment.
     Type: String
   PublicSubnet1ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246dcd).
+    Description: ID of public subnet 1, located in Availability Zone 1 of your existing VPC (e.g., subnet-a0246dcd).
     Default: "subnet-xxxxxxx"
   PublicSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: ID of the public subnet in Availability Zone 2 of your existing VPC (e.g., subnet-b0246dcd).
+    Description: ID of public subnet 2, located in Availability Zone 2 of your existing VPC (e.g., subnet-b0246dcd).
     Default: "subnet-xxxxxxx"
   PublicSubnet3ID:
     Type: "AWS::EC2::Subnet::Id"
-    Description: ID of the public subnet in Availability Zone 3 of your existing VPC (e.g., subnet-c0246dcd).
+    Description: ID of public subnet 3, located in Availability Zone 3 of your existing VPC (e.g., subnet-c0246dcd).
     Default: "subnet-xxxxxx"
   Password:
-    Description: Please provide password for multiple internal services use(Min 8 Alphanumeric Characters)
+    Description: Password is required for internal services (must be at least 8 alphanumeric characters).
     Type: String
     Default: ''
     NoEcho: true
   CompanyName:
-    Description: Please provide Company First Name required for subdomain(Max First 8 Characters)(Require only for Eval Environment)
+    Description: (Required only for evaluation environments.) Provide the name of your subdomain (no more than 8 alphanumeric characters).
     Type: String
     Default: ''
   CloudmeetDomain:
-    Description: CloudmeetDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
+    Description: DNS name for CloudMeet (e.g., cloudmeet.example.com).
     Type: String
     Default: ''
   CloudcallDomain:
-    Description: CloudcallDomain Name required for DNS Name(i.g. Cloudmeet.example.com)
+    Description: DNS name for CloudCall (e.g., cloudmeet.example.com).
     Type: String
     Default: ''
   CertificateID:
-    Description: Please provide SSL CertificateID required for SSL enabled NLB
+    Description: Provide an SSL ID for the SSL-enabled Network Load Balancer.
     Type: String
     Default: ''
   QSS3BucketName:
@@ -163,8 +157,7 @@ Parameters:
     Type: String
   QSS3BucketRegion:
     Default: 'ap-southeast-1'
-    Description: The Region where the Quick Start S3 bucket (QSS3BucketName) is
-      hosted. When using your own bucket, you must specify this value.
+    Description: Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. If you use your own bucket, you must specify this value.
     Type: String
 Conditions:
   ProdEnv: !Equals
@@ -185,22 +178,22 @@ Rules:
           - !Equals
             - !Ref Password
             - ''
-        AssertDescription: Password is mandatory for multiple internal services.
+        AssertDescription: Password is required for internal services.
       - Assert: !Not
           - !Equals
             - !Ref CertificateID
             - ''
-        AssertDescription: ACM Certificate value cannot be empty if Production Environment is selected.
+        AssertDescription: ACM certificate value cannot be null for production environments.
       - Assert: !Not
           - !Equals
             - !Ref CloudmeetDomain
             - ''
-        AssertDescription: CloudmeetDomain is mandatory for the Cloudmeet Application.
+        AssertDescription: Required for the CloudMeet application.
       - Assert: !Not
           - !Equals
             - !Ref CloudcallDomain
             - ''
-        AssertDescription: CloudcallDomain is mandatory for the Cloudmeet Application.
+        AssertDescription: Required for the CloudMeet application.
   ValidateEvalDeploymentType:
     RuleCondition: !Equals
       - !Ref DeploymentType
@@ -210,12 +203,12 @@ Rules:
           - !Equals
             - !Ref Password
             - ''
-        AssertDescription: Password is mandatory for multiple internal services.
+        AssertDescription: Password is required for internal services.
       - Assert: !Not
           - !Equals
             - !Ref CompanyName
             - ''
-        AssertDescription: CompanyName is mandatory for the Subdomain {i.g. companyname.cloudmeet.biz and companyname-call.cloudmeet.biz).
+        AssertDescription: Required for the subdomain (e.g., companyname.cloudmeet.biz or companyname-call.cloudmeet.biz).
 Resources:
   ECSClusEfsRoleStack:
     Type: AWS::CloudFormation::Stack
